@@ -1,0 +1,111 @@
+
+<style>
+.button {
+  display: block;
+  padding: 5px 10px;
+  font-size: 18px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: white;
+  background-color: #79aec8;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 9px #79aec8;
+  width: 300px;
+  font-weight: bold;
+  position:relative;
+  left:3%
+}
+
+div.absolute {
+  position: absolute;
+  top: 20%;
+  left: 0;
+  width: 30%;
+  height: 50%;
+}
+div.text {
+  top: 20%;
+  right: 5%;
+  width: 60%;
+  height: 10%;
+  color:green;
+  position: absolute;
+  animation-name: mymove;
+  animation-duration: 30s;
+  animation-iteration-count: 5;
+}
+
+div.text_field {
+  bottom: 25%;
+  right: 5%;
+  width: 60%;
+  height: 40%;
+  color:black;
+  margin-bottom: 10px;
+  position: absolute;
+}
+
+
+
+@keyframes mymove {
+  from {left: 40%;}
+  to {left: 70%;}
+}
+
+.button:active {
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+
+.footer {
+   position: absolute;
+   left: 0;
+   bottom: 0;
+   width: 100%;
+   height: 40px;
+   background-color: #417690;
+   color: white;
+   text-align: center;
+}
+</style>
+
+
+{% extends 'nav_bar.html' %}
+{% block mycontent %}
+<!-- <button class="button" onclick="loadfunc()"><a href="/print" id="printsys">Total Load On System Report</a></button> -->
+<br><br><br>
+ <div class="absolute">
+<button class="button" onclick="document.location='/print'">Total Load On System Report</button><br><br>
+<button class="button">Usage Efficiency Report</button><br><br>
+<button class="button">Overall Efficiency Report</button><br><br>
+<button class="button">Quality Report</button><br><br>
+<button class="button">Daily Report</button><br><br>
+ </div>
+
+ <div class="text"> <h1>Amritha Tool Crafts</h1></div>
+ <div class="text_field"><h2>About: <h2>
+   <h4>Amritha Tool Crafts was established in 1997 and has worked its way from a very humble beginning
+   and has now positioned itself as one of the best mold making shops in India and matching with
+   global standards, having designed and made more than 1700 molds is firmly moving ahead with
+   a clear vision of being the preferred choice by customers looking for injection molds of high cavitation
+   with reliable performance producing good quality parts consistently.</h4>
+ </div>
+
+ <div class="footer">
+   copyrights: Amritha Tool Crafts</div>
+
+<script type="text/javascript">
+        function loadfunc() {
+            document.getElementById('printsys').href
+                ="/print";
+
+            document.getElementById("printsys")
+                .textContent = "Total Load On System Report";
+        }
+</script>
+
+
+{% endblock %}

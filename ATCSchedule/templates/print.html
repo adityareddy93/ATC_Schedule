@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+
+input.b {
+  position: absolute;
+  right: 500px;
+  padding: 3px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+input.a {
+  position: absolute;
+  right: 350px;
+  padding: 3px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+button.sub {
+  position: absolute;
+  right: 280px;
+  padding: 3px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#center {font-weight: bold;}
+
+#customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 90%;
+}
+
+#customers td, #customers th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers tr{
+
+}
+
+#customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: darkblue;
+  color: white;
+}
+</style>
+</head>
+<body>
+
+<h2>Usage Efficiency Report</h2>
+<form method="POST">
+  {% csrf_token %}
+<center id="center">
+From:&nbsp;&nbsp;<input  type="date"  name="start" id="myDate" value="yyyy-mm-dd">&nbsp;&nbsp;&nbsp;&nbsp;
+To:&nbsp;&nbsp;<input  type="date"  name="end" id="myDate" value="yyyy-mm-dd">&nbsp;&nbsp;&nbsp;&nbsp;
+<button  onclick="myFunction()">search</button>
+</center>
+
+<br><br>
+
+
+<table id="customers">
+  <tr>
+    <th>Tool Info</th>
+    <th>Machine Completed Date (Ideal case)</th>
+    <th>Machine Completed Date (With buffer)</th>
+    <th>Date</th>
+  </tr>
+  {% for i in d %}
+  <tr>
+    <td>{{i.tool_info}}</td>
+    <td>{{i.completion_date_with_out_buffer}}</td>
+    <td>{{i.completion_date_with_buffer}}</td>
+    <td>{{i.insertion_date}}</td>
+  </tr>
+  {% endfor %}
+</table>
+</form>
+<script>
+function myFunction() {
+  var x = document.getElementById("myDate").value;
+  document.getElementById("demo").innerHTML = x;
+}
+</script>
+</body>
+</html>

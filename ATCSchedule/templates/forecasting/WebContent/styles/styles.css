@@ -1,0 +1,32 @@
+.header-div {
+	margin-top: 10px;
+	margin-left: 10px;
+}
+
+.header-btn {
+	width: 115px;
+	height: 25px;
+	background: #d9d9d9;
+	padding: 10px;
+	text-align: center;
+	border-radius: 5px;
+	color: black;
+	line-height: 25px;
+	text-decoration: none;
+}
+
+.options-div {
+	margin-left: 10px
+}
+
+.option-btn {
+	display: block;
+	width: 20%;
+	height: 25px;
+	border: 1px solid;
+	text-align: center;
+	border-radius: 1px;
+	color: black;
+	line-height: 25px;
+	text-decoration: none;
+}
