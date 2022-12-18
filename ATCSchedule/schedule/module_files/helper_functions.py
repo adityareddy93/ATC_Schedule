@@ -13,14 +13,14 @@ def check_weekend(date):
 # Calculate forcast date for total load on systems.
 def forcast_tool_output(df):
     df['tool_info'] = df['tool_no'] + " " + df['tool_name']
+    
     df['estimated_hours'] = df['estimated_hours'].fillna(0)
     df['buffer_hours'] = df['buffer_hours'].fillna(df['estimated_hours'])
 
     df = df.groupby(["department", "tool_info", "machines", "insertion_date"], sort=False)[['estimated_hours', 'buffer_hours']].sum().reset_index()
 
-    print(df)
     # Creating a primary key for total load on systems table (1st table)
-    df['total_load_pk'] = df['department'] + df['tool_info'] + df['machines']
+    df['total_load_pk'] = df['department'] + '_' + df['tool_info'] + '_' + df['machines']
 
     # convert insert_add_dt to DateTime format
     df['insertion_date'] = pd.to_datetime(df['insertion_date'], format='%Y-%m-%d')
@@ -56,7 +56,6 @@ def forcast_tool_output(df):
             else:
                 continue
 
-    print(df['actual_start_date'])
     # To indentify the Sat and Sun
     df["Weekend"] = df["actual_start_date"].dt.weekday
 
@@ -94,30 +93,40 @@ def total_load_on_systems_output(total_load_on_systems_input):
 def daily_report_output(total_load_input, daily_report_input):
     # daily_hours_df['tool_info'] = daily_hours_df['tool_no'] + daily_hours_df['tool_name']
     daily_report_input['tool_info'] = daily_report_input['tool_no'] + " " + daily_report_input['tool_name']
-    dff = daily_report_input.groupby(["department", "tool_info", "machines", "insert"]).num_of_hours.sum().reset_index()
+    dff = daily_report_input.groupby(["department", "tool_info", "machines", "insert"], sort=False).num_of_hours.sum().reset_index()
 
-    # ADD '_' to total machine hours table to primary key
     # replace insert add date with inserts
-    dff['daily_hours_pk'] = dff['department'] + "_" + dff['tool_info'] + \
-            "_" + dff['insert'] + "_" + dff['machines']
+    dff['daily_hours_pk'] = dff['department'] + "_" + dff['tool_info'] + "_" + dff['machines']
 
     total_load_df = forcast_tool_output(total_load_input)
 
     total_load_df = total_load_df[
-        ["total_load_pk", "completion_date_with_out_buffer", "estimated_hours", "total_actual_days"]]
+        ["total_load_pk", "completion_date_with_out_buffer", "estimated_hours", "capacity_day"]]
 
+    combined_df = pd.merge(total_load_df, dff, how='right', left_on="total_load_pk", right_on="daily_hours_pk")
 
-    # convert days in to hours in total_load_df
-    total_load_df["total_actual_days_in_hours"] = total_load_df["total_actual_days"].mul(24)
+    combined_df["daily_hours_diff"] = combined_df["capacity_day"] - combined_df["num_of_hours"]
 
-    new_df = pd.merge(total_load_df, dff, how='right', left_on="total_load_pk", right_on="daily_hours_pk")
+    combined_df["daily_hours_diff_in_days"] = round(combined_df["daily_hours_diff"] / combined_df["capacity_day"])
+    
+    # combined_df = combined_df.groupby('tool_info').agg({'daily_hours_diff': 'sum', 'completion_date_with_out_buffer': 'first', 'estimated_hours': 'first'})
 
-    print(new_df)
+    combined_df['completion_date_with_out_buffer'] = combined_df['completion_date_with_out_buffer'] + pd.to_timedelta(combined_df['daily_hours_diff_in_days'], unit='D')
 
-    # add num of hours to total number of hours
+    combined_df = combined_df[
+        ["tool_info", "machines", "completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]]
 
-    # convert to days and add them to completion date.
+    return combined_df
 
-    # return estimated hours, num of hours, date aas output
+def accuarcy_quality_report(quality_report_input):
 
-    return daily_report_input
+    quality_report_input['tool_info'] = quality_report_input['tool_no'] + " " + quality_report_input['tool_name']
+    dff = quality_report_input.groupby(["department", "tool_info", "machines"], sort=False)[['accuracy', 'num_of_rejects', 'estimated_cost']].sum().reset_index()
+
+    # replace insert add date with inserts
+    # dff['quality_hours_pk'] = dff['department'] + "_" + dff['tool_info'] + "_" + dff['machines']
+
+    dff = dff[
+        ["tool_info", "machines", "accuracy", "num_of_rejects", "estimated_cost"]]
+
+    return dff

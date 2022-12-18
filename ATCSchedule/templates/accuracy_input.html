@@ -1,0 +1,148 @@
+<style>
+    .button {
+      display: block;
+      padding: 5px 4px;
+      font-size: 18px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      outline: none;
+      color: white;
+      background-color: #79aec8;
+      border: none;
+      border-radius: 15px;
+      width: 130px;
+      font-weight: bold;
+      position:relative;
+      left:1%
+    }
+    input.b {
+      position: absolute;
+      right: 500px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    
+    input.a {
+      position: absolute;
+      right: 350px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    
+    
+    button.sub {
+      position: absolute;
+      right: 280px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    
+    #center {font-weight: bold;}
+    
+    #customers {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 98%;
+    
+    
+    }
+    #customers td {
+      padding: 15px;
+        border: 2px solid #f2f2f2;
+        border-radius: 5px;
+    }
+    
+    #customers th {
+      border: 2px solid #ddd;
+      padding: 8px;
+      border-radius: 5px
+    }
+    
+    #customers tr:nth-child(even){background-color: #ddd;}
+    
+    #customers tr.sub:hover {background-color: olive;}
+    #customers td.sub:hover {background-color: lightseagreen;}
+    
+    #customers th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #417690;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    </style>
+    
+    
+    {% extends 'nav_bar.html' %}
+    {% block mycontent %}
+        {% if submit %}
+        Form Submitted Successfully
+        {% else %}
+    <h2> &nbsp;&nbsp;&nbsp;Quality Report </h2>
+    <center>
+    
+      <form action = "" method="post">
+            <table id="customers">
+        {% csrf_token %}
+            <tr>
+            <th>Department</th>
+            <th>Tool No</th>
+            <th>Tool Name</th>
+            <th>Machines</th>
+            <th>Accuracy</th>
+            <th>No. of Rejects</th>
+            <th>Est. Cost</th>
+            <th>Insertion Date</th>
+          </tr>
+            <tr>
+                <td>{{form.department}}</td>
+                <td>{{form.tool_no}}</td>
+                <td>{{form.tool_name}}</td>
+                <td>{{form.machines}}</td>
+                <td>{{form.accuracy}}</td>
+                <td>{{form.num_of_rejects}}</td>
+                <td>{{form.estimated_cost}}</td>
+                <td>{{form.insertion_date}}</td>
+            </tr>
+            </table>
+    <br>
+    <button class="button" type="submit" value= "submit">Submit</button>
+    
+    </form>
+    </center>
+    <br>
+    <center>
+    <table id="customers">
+    
+      <tr>
+        <th>Department</th>
+        <th>Tool No</th>
+        <th>Tool Name</th>
+        <th>Machines</th>
+        <th>Accuracy</th>
+        <th>No. of Rejects</th>
+        <th>Est. Cost</th>
+        <th>Insertion Date</th>
+      </tr>
+        {% for i in d %}
+        <tr class='sub'>
+            <td class='sub'>{{i.department}}</td>
+            <td class='sub'>{{i.tool_no}}</td>
+            <td class='sub'>{{i.tool_name}}</td>
+            <td class='sub'>{{i.machines}}</td>
+            <td class='sub'>{{i.accuracy}}</td>
+            <td class='sub'>{{i.num_of_rejects}}</td>
+            <td class='sub'>{{i.estimated_cost}}</td>
+            <td class='sub'>{{i.insertion_date}}</td>
+        </tr>
+        {% endfor %}
+    
+    </table>
+    </center>
+    
+        {% endif %}
+    {% endblock %}
+    

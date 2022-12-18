@@ -1,141 +1,109 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-<style>
-table, th, td {
-border: 2px solid #ddd;
-border-collapse: collapse;
-padding:5px;
-}
-</style>
-</head>
-<body>
-
-<table style="width:100%">
-  <tr>
-    <th colspan="1">Tool Information</th>
-    <th colspan="3">Turning</th>
-    <th colspan="3">Milling</th>
-    <th colspan="3">EDM</th>
-    <th colspan="3">Wire Cut</th>
-  </tr>
-  <tr>
-    <th></th>
-    <th>Planned</th>
-    <th>Actual</th>
-    <th>Completion Date</th>
-    <th>Planned</th>
-    <th>Actual</th>
-    <th>Completion Date</th>
-    <th>Planned</th>
-    <th>Actual</th>
-    <th>Completion Date</th>
-    <th>Planned</th>
-    <th>Actual</th>
-    <th>Completion Date</th>
-  </tr>
-
-</table>
-</body>
-</html> -->
-
-
 <style>
 
-input.b {
-  position: absolute;
-  right: 500px;
-  padding: 3px;
-  font-family: Arial, Helvetica, sans-serif;
-}
+  input.b {
+    position: absolute;
+    right: 500px;
+    padding: 3px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
+  input.a {
+    position: absolute;
+    right: 350px;
+    padding: 3px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
+  
+  button.sub {
+    position: absolute;
+    right: 280px;
+    padding: 3px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
+  #center {font-weight: bold;}
+  
+  #customers {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 90%;
+  
+  
+  }
+  
+  #customers td, #customers th {
+    border: 2px solid #ddd;
+    padding: 8px;
+    border-radius: 5px
+  
+  }
+  
+  #customers tr:nth-child(even){background-color: #f2f2f2;}
+  
+  #customers tr:hover {background-color: lightblue;}
+  
+  #customers th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #417690;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: center;
+  
+  }
 
-input.a {
-  position: absolute;
-  right: 350px;
-  padding: 3px;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-
-button.sub {
-  position: absolute;
-  right: 280px;
-  padding: 3px;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-#center {font-weight: bold;}
-
-#customers {
-  font-family: Arial, Helvetica, sans-serif;
-  border-collapse: collapse;
-  width: 90%;
-
-
-}
-
-#customers td, #customers th {
-  border: 2px solid #ddd;
-  padding: 8px;
-  border-radius: 5px
-
-}
-
-#customers tr:nth-child(even){background-color: #f2f2f2;}
-
-#customers tr:hover {background-color: lightblue;}
-
-#customers th {
-  padding-top: 12px;
-  padding-bottom: 12px;
-  text-align: left;
-  background-color: #417690;
-  color: white;
-  font-weight: bold;
-  font-size: 18px;
-
-}
-</style>
-<body>
-{% extends 'nav_bar.html' %}
-{% block mycontent %}
-<h2>Usage Efficiency Report</h2>
-<form method="POST">
-  {% csrf_token %}
-<center id="center">
-From:&nbsp;&nbsp;<input  type="date"  name="start" id="myDate" value="yyyy-mm-dd">&nbsp;&nbsp;&nbsp;&nbsp;
-To:&nbsp;&nbsp;<input  type="date"  name="end" id="myDate" value="yyyy-mm-dd">&nbsp;&nbsp;&nbsp;&nbsp;
-<button  onclick="myFunction()">search</button>
-</center>
-
-<br><br>
-
-<center>
-<table id="customers">
-
-  <tr>
-    <th>Tool Info</th>
-    <th>Machine Completed Date (Ideal case)</th>
-    <th>Machine Completed Date (With buffer)</th>
-    <th>Date</th>
-  </tr>
-  {% for i in d %}
-  <tr>
-    <td>{{i.tool_info}}</td>
-    <td>{{i.completion_date_with_out_buffer}}</td>
-    <td>{{i.completion_date_with_buffer}}</td>
-    <td>{{i.insertion_date}}</td>
-  </tr>
-  {% endfor %}
-
-</table>
-</center>
-</form>
-</body>
-<script>
-function myFunction() {
-  var x = document.getElementById("myDate").value;
-  document.getElementById("demo").innerHTML = x;
-}
-</script>
-{% endblock %}
+  </style>
+  <body>
+  {% extends 'nav_bar.html' %}
+  {% block mycontent %}
+  <h2>Usage Efficiency Report</h2>
+  <form method="POST">
+    {% csrf_token %}
+  <center id="center">
+  From:&nbsp;&nbsp;<input  type="date"  name="start" id="myDate" value="yyyy-mm-dd">&nbsp;&nbsp;&nbsp;&nbsp;
+  To:&nbsp;&nbsp;<input  type="date"  name="end" id="myDate" value="yyyy-mm-dd">&nbsp;&nbsp;&nbsp;&nbsp;
+  <button  onclick="myFunction()">search</button>
+  </center>
+  
+  <br><br>
+  
+  <center>
+  
+  <table id="customers">
+    <tr>
+      <th colspan="1">Tool Information</th>
+      <th colspan="3">Turning</th>
+      <th colspan="3">Milling</th>
+      <th colspan="3">EDM</th>
+      <th colspan="3">Wire Cut</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>Planned</th>
+      <th>Actual</th>
+      <th>Completion Date</th>
+      <th>Planned</th>
+      <th>Actual</th>
+      <th>Completion Date</th>
+      <th>Planned</th>
+      <th>Actual</th>
+      <th>Completion Date</th>
+      <th>Planned</th>
+      <th>Actual</th>
+      <th>Completion Date</th>
+    </tr>  
+  </table>
+  </center>
+  </form>
+  </body>
+  <script>
+  function myFunction() {
+    var x = document.getElementById("myDate").value;
+    document.getElementById("demo").innerHTML = x;
+  }
+  </script>
+  {% endblock %}
+  

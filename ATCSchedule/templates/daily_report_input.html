@@ -1,0 +1,160 @@
+<style>
+    .button {
+      display: block;
+      padding: 5px 4px;
+      font-size: 18px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      outline: none;
+      color: white;
+      background-color: #79aec8;
+      border: none;
+      border-radius: 15px;
+      width: 130px;
+      font-weight: bold;
+      position:relative;
+      left:1%
+    }
+    input.b {
+      position: absolute;
+      right: 500px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    
+    input.a {
+      position: absolute;
+      right: 350px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    
+    
+    button.sub {
+      position: absolute;
+      right: 280px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    
+    #center {font-weight: bold;}
+    
+    #customers {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 98%;
+    
+    
+    }
+    #customers td {
+      padding: 15px;
+        border: 2px solid #f2f2f2;
+        border-radius: 5px;
+    }
+    
+    #customers th {
+      border: 2px solid #ddd;
+      padding: 8px;
+      border-radius: 5px
+    }
+    
+    #customers tr:nth-child(even){background-color: #ddd;}
+    
+    #customers tr.sub:hover {background-color: olive;}
+    #customers td.sub:hover {background-color: lightseagreen;}
+    
+    #customers th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #417690;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    </style>
+    
+    
+    {% extends 'nav_bar.html' %}
+    {% block mycontent %}
+        {% if submit %}
+        Form Submitted Successfully
+        {% else %}
+    <h2> &nbsp;&nbsp;&nbsp;Daily Report </h2>
+    <center>
+    
+      <form action = "" method="post">
+            <table id="customers">
+        {% csrf_token %}
+          <tr>
+            <th>Department</th>
+            <th>Tool No</th>
+            <th>Tool Name</th>
+            <th>Insert</th>
+            <th>Machine</th>
+            <th>Turning</th>
+            <th>Milling</th>
+            <th>EDM</th>
+            <th>Wire Cut</th>
+            <th>Number of Hours</th>
+            <th>Daily Date</th>
+          </tr>
+            <tr>
+                <td>{{form.department}}</td>
+                <td>{{form.tool_no}}</td>
+                <td>{{form.tool_name}}</td>
+                <td>{{form.insert}}</td>
+                <td>{{form.machine}}</td>
+                <td>{{form.turning}}</td>
+                <td>{{form.milling}}</td>
+                <td>{{form.edm}}</td>
+                <td>{{form.wire_cut}}</td>
+                <td>{{form.num_of_hours}}</td>
+                <td>{{form.daily_date}}</td>
+            </tr>
+            </table>
+    <br>
+    <button class="button" type="submit" value= "submit">Submit</button>
+    
+    </form>
+    </center>
+    <br>
+    <center>
+    <table id="customers">
+    
+      <tr>
+        <th>Department</th>
+        <th>Tool No</th>
+        <th>Tool Name</th>
+        <th>Insert</th>
+        <th>Machine</th> <!--Need to remove this field -->
+        <th>Turning</th>
+        <th>Milling</th>
+        <th>EDM</th>
+        <th>Wire Cut</th>
+        <th>Number of Hours</th>
+        <th>Daily Date</th>
+      </tr>
+        {% for i in d %}
+        <tr class='sub'>
+            <td class='sub'>{{i.department}}</td>
+            <td class='sub'>{{i.tool_no}}</td>
+            <td class='sub'>{{i.tool_name}}</td>
+            <td class='sub'>{{i.insert}}</td>
+            <td class='sub'>{{i.machines}}</td>
+            <td class='sub'>{{i.turning}}</td>
+            <td class='sub'>{{i.milling}}</td>
+            <td class='sub'>{{i.edm}}</td>
+            <td class='sub'>{{i.wire_cut}}</td>
+            <td class='sub'>{{i.num_of_hours}}</td>
+            <td class='sub'>{{i.daily_date}}</td>
+        </tr>
+        {% endfor %}
+    
+    </table>
+    </center>
+    
+        {% endif %}
+    {% endblock %}
+    
