@@ -74,15 +74,15 @@
     
       <tr>
         <th>Tool Info</th>
-        <th>Machines</th>
-        <th>Accuracy</th>
+        <th>machine</th>
+        <th>Accuracy(µm)</th>
         <th>No. of Rejects</th>
         <th>Est. Cost</th>
       </tr>
       {% for i in d %}
       <tr>
         <td>{{i.tool_info}}</td>
-        <td>{{i.machines}}</td>
+        <td>{{i.machine}}</td>
         <td>{{i.accuarcy}}</td>
         <td>{{i.num_of_rejects}}</td>
         <td>{{i.estimated_cost}}</td>

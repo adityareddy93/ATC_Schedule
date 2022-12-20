@@ -88,23 +88,27 @@
             <table id="customers">
         {% csrf_token %}
             <tr>
-            <th>Department</th>
+            <th>unit</th>
             <th>Tool No</th>
             <th>Tool Name</th>
-            <th>Machines</th>
-            <th>Accuracy</th>
+            <th>Insert</th>
+            <th>Turning (µm)</th>
+            <th>Milling (µm)</th>
+            <th>EDM (µm)</th>
+            <th>Wire Cut (µm)</th>
             <th>No. of Rejects</th>
-            <th>Est. Cost</th>
             <th>Insertion Date</th>
           </tr>
             <tr>
-                <td>{{form.department}}</td>
+                <td>{{form.unit}}</td>
                 <td>{{form.tool_no}}</td>
                 <td>{{form.tool_name}}</td>
-                <td>{{form.machines}}</td>
-                <td>{{form.accuracy}}</td>
+                <td>{{form.insert}}</td>
+                <td>{{form.turning}}</td>
+                <td>{{form.milling}}</td>
+                <td>{{form.edm}}</td>
+                <td>{{form.wire_cut}}</td>
                 <td>{{form.num_of_rejects}}</td>
-                <td>{{form.estimated_cost}}</td>
                 <td>{{form.insertion_date}}</td>
             </tr>
             </table>
@@ -118,24 +122,28 @@
     <table id="customers">
     
       <tr>
-        <th>Department</th>
+        <th>unit</th>
         <th>Tool No</th>
         <th>Tool Name</th>
-        <th>Machines</th>
-        <th>Accuracy</th>
+        <th>Insert</th>
+        <th>Turning (µm)</th>
+        <th>Milling (µm)</th>
+        <th>EDM (µm)</th>
+        <th>Wire Cut (µm)</th>
         <th>No. of Rejects</th>
-        <th>Est. Cost</th>
         <th>Insertion Date</th>
       </tr>
         {% for i in d %}
         <tr class='sub'>
-            <td class='sub'>{{i.department}}</td>
+            <td class='sub'>{{i.unit}}</td>
             <td class='sub'>{{i.tool_no}}</td>
             <td class='sub'>{{i.tool_name}}</td>
-            <td class='sub'>{{i.machines}}</td>
-            <td class='sub'>{{i.accuracy}}</td>
+            <td class='sub'>{{i.insert}}</td>
+            <td class='sub'>{{i.turning}}</td>
+            <td class='sub'>{{i.milling}}</td>
+            <td class='sub'>{{i.edm}}</td>
+            <td class='sub'>{{i.wire_cut}}</td>
             <td class='sub'>{{i.num_of_rejects}}</td>
-            <td class='sub'>{{i.estimated_cost}}</td>
             <td class='sub'>{{i.insertion_date}}</td>
         </tr>
         {% endfor %}

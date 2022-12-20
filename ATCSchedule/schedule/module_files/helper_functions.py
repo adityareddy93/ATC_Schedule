@@ -17,17 +17,22 @@ def forcast_tool_output(df):
     df['estimated_hours'] = df['estimated_hours'].fillna(0)
     df['buffer_hours'] = df['buffer_hours'].fillna(df['estimated_hours'])
 
-    df = df.groupby(["department", "tool_info", "machines", "insertion_date"], sort=False)[['estimated_hours', 'buffer_hours']].sum().reset_index()
+    # Buffer hours wiil be in percentage converting percentage to values
+    # df['buffer_hours'] = df['estimated_hours'] + ( (df['estimated_hours']/df['buffer_hours']) * 100)
+
+    print(df)
+    df = df.groupby(["unit", "tool_info", "machine", "insertion_date"], sort=False)[['estimated_hours', 'buffer_hours']].sum().reset_index()
 
     # Creating a primary key for total load on systems table (1st table)
-    df['total_load_pk'] = df['department'] + '_' + df['tool_info'] + '_' + df['machines']
+    df['total_load_pk'] = df['unit'] + '_' + df['tool_info'] + '_' + df['machine']
 
     # convert insert_add_dt to DateTime format
     df['insertion_date'] = pd.to_datetime(df['insertion_date'], format='%Y-%m-%d')
 
     # Can be removed once we add this column to table
-    df["capacity_day"] = df["machines"].apply(lambda x: a_dict.get(x))
+    df["capacity_day"] = df["machine"].apply(lambda x: a_dict.get(x))
 
+    # print(df)
     # Total actual days
     df['total_actual_days'] = round(df['estimated_hours'] / df['capacity_day'])
 
@@ -92,11 +97,15 @@ def total_load_on_systems_output(total_load_on_systems_input):
 
 def daily_report_output(total_load_input, daily_report_input):
     # daily_hours_df['tool_info'] = daily_hours_df['tool_no'] + daily_hours_df['tool_name']
+    daily_report_input.melt(id_vars=["unit", "tool_no", "tool_name", "insert", "num_of_hours", "daily_date"], 
+        var_name="machine", 
+        value_name="accuracy")
+
     daily_report_input['tool_info'] = daily_report_input['tool_no'] + " " + daily_report_input['tool_name']
-    dff = daily_report_input.groupby(["department", "tool_info", "machines", "insert"], sort=False).num_of_hours.sum().reset_index()
+    dff = daily_report_input.groupby(["unit", "tool_info", "machine", "insert"], sort=False).num_of_hours.sum().reset_index()
 
     # replace insert add date with inserts
-    dff['daily_hours_pk'] = dff['department'] + "_" + dff['tool_info'] + "_" + dff['machines']
+    dff['daily_hours_pk'] = dff['unit'] + "_" + dff['tool_info'] + "_" + dff['machine']
 
     total_load_df = forcast_tool_output(total_load_input)
 
@@ -114,19 +123,24 @@ def daily_report_output(total_load_input, daily_report_input):
     combined_df['completion_date_with_out_buffer'] = combined_df['completion_date_with_out_buffer'] + pd.to_timedelta(combined_df['daily_hours_diff_in_days'], unit='D')
 
     combined_df = combined_df[
-        ["tool_info", "machines", "completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]]
+        ["tool_info", "machine", "completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]]
 
     return combined_df
 
 def accuarcy_quality_report(quality_report_input):
 
+    quality_report_input.melt(id_vars=["unit", "tool_no", "tool_name", "num_of_rejects", "insertion_date"], 
+        var_name="machine", 
+        value_name="accuracy")
+
     quality_report_input['tool_info'] = quality_report_input['tool_no'] + " " + quality_report_input['tool_name']
-    dff = quality_report_input.groupby(["department", "tool_info", "machines"], sort=False)[['accuracy', 'num_of_rejects', 'estimated_cost']].sum().reset_index()
+    quality_report_input['estimated_cost'] = quality_report_input['num_of_rejects'] * 1000
+    dff = quality_report_input.groupby(["unit", "tool_info", "machine"], sort=False)[['accuracy', 'num_of_rejects', 'estimated_cost']].sum().reset_index()
 
     # replace insert add date with inserts
-    # dff['quality_hours_pk'] = dff['department'] + "_" + dff['tool_info'] + "_" + dff['machines']
+    # dff['quality_hours_pk'] = dff['unit'] + "_" + dff['tool_info'] + "_" + dff['machine']
 
     dff = dff[
-        ["tool_info", "machines", "accuracy", "num_of_rejects", "estimated_cost"]]
+        ["tool_info", "machine", "accuracy", "num_of_rejects", "estimated_cost"]]
 
     return dff

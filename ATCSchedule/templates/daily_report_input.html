@@ -88,28 +88,22 @@
             <table id="customers">
         {% csrf_token %}
           <tr>
-            <th>Department</th>
+            <th>unit</th>
             <th>Tool No</th>
             <th>Tool Name</th>
             <th>Insert</th>
             <th>Machine</th>
-            <th>Turning</th>
-            <th>Milling</th>
-            <th>EDM</th>
-            <th>Wire Cut</th>
+            <th>Machine Name</th>
             <th>Number of Hours</th>
             <th>Daily Date</th>
           </tr>
             <tr>
-                <td>{{form.department}}</td>
+                <td>{{form.unit}}</td>
                 <td>{{form.tool_no}}</td>
                 <td>{{form.tool_name}}</td>
                 <td>{{form.insert}}</td>
                 <td>{{form.machine}}</td>
-                <td>{{form.turning}}</td>
-                <td>{{form.milling}}</td>
-                <td>{{form.edm}}</td>
-                <td>{{form.wire_cut}}</td>
+                <td>{{form.machine_name}}</td>
                 <td>{{form.num_of_hours}}</td>
                 <td>{{form.daily_date}}</td>
             </tr>
@@ -124,29 +118,23 @@
     <table id="customers">
     
       <tr>
-        <th>Department</th>
+        <th>unit</th>
         <th>Tool No</th>
         <th>Tool Name</th>
         <th>Insert</th>
-        <th>Machine</th> <!--Need to remove this field -->
-        <th>Turning</th>
-        <th>Milling</th>
-        <th>EDM</th>
-        <th>Wire Cut</th>
+        <th>Machine</th>
+        <th>Machine Name</th>
         <th>Number of Hours</th>
         <th>Daily Date</th>
       </tr>
         {% for i in d %}
         <tr class='sub'>
-            <td class='sub'>{{i.department}}</td>
+            <td class='sub'>{{i.unit}}</td>
             <td class='sub'>{{i.tool_no}}</td>
             <td class='sub'>{{i.tool_name}}</td>
             <td class='sub'>{{i.insert}}</td>
-            <td class='sub'>{{i.machines}}</td>
-            <td class='sub'>{{i.turning}}</td>
-            <td class='sub'>{{i.milling}}</td>
-            <td class='sub'>{{i.edm}}</td>
-            <td class='sub'>{{i.wire_cut}}</td>
+            <td class='sub'>{{i.machine}}</td>
+            <td class='sub'>{{i.machine_name}}</td>
             <td class='sub'>{{i.num_of_hours}}</td>
             <td class='sub'>{{i.daily_date}}</td>
         </tr>

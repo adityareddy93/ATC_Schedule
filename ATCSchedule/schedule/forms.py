@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from .models import TotalLoadOnSystemsInput, DailyMachineHoursInput
-from .constants import Unit_choice, machines_choice, turning_choice, milling_choice, edm_choice, wire_cut_choice
+from .constants import Unit_choice, machines_choice, turning_choice, milling_choice, edm_choice, wire_cut_choice, machine_name_choice
 #widget
 class ContactForm(forms.Form):
     name = forms.CharField()
@@ -9,10 +9,22 @@ class ContactForm(forms.Form):
 #category  = forms.ChoiceField(choices=[('question','Answer'),('other','Other')])
 
 
+def get_my_choices(value):
+    # you place some logic here
+    if value == "turning":
+        return turning_choice
+    if value == "turning":
+        return milling_choice
+    if value == "turning":
+        return edm_choice
+    if value == "turning":
+        return wire_cut_choice
+
+
 # create a forms
 class estimatedHoursForm(ModelForm):
 
-    department = forms.ChoiceField(choices = Unit_choice,widget=forms.Select(attrs={'style': 'width:100px'}))
+    unit = forms.ChoiceField(choices = Unit_choice,widget=forms.Select(attrs={'style': 'width:100px'}))
     tool_no = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
     tool_name = forms.CharField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
     insert = forms.CharField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
@@ -29,17 +41,14 @@ class estimatedHoursForm(ModelForm):
 # create a form for daily machine hours
 class dailyMachineHoursForm(ModelForm):
 
-    department = forms.ChoiceField(choices = Unit_choice,widget=forms.Select(attrs={'style': 'width:100px'}))
+    unit = forms.ChoiceField(choices = Unit_choice,widget=forms.Select(attrs={'style': 'width:100px'}))
     tool_no = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
     tool_name = forms.CharField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
     insert = forms.CharField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
     machine = forms.ChoiceField(choices = machines_choice,widget=forms.Select(attrs={'style': 'width:100px'}))
-    turning = forms.ChoiceField(choices = turning_choice,widget=forms.Select(attrs={'style': 'width:100px'}))
-    milling = forms.ChoiceField(choices = milling_choice,widget=forms.Select(attrs={'style': 'width:100px'}))
-    edm = forms.ChoiceField(choices = edm_choice,widget=forms.Select(attrs={'style': 'width:100px'}))
-    wire_cut = forms.ChoiceField(choices = wire_cut_choice,widget=forms.Select(attrs={'style': 'width:100px'}))
+    machine_name = forms.ChoiceField(choices = machines_choice,widget=forms.Select(attrs={'style': 'width:100px'}))
     no_of_hours = forms.IntegerField(widget=forms.NumberInput(attrs={'style': 'width:100px'}))
-    insertion_date = forms.DateField(widget=forms.DateInput(attrs={'style': 'width:100px'}))
+    daily_date = forms.DateField(widget=forms.DateInput(attrs={'style': 'width:100px'}))
     class Meta:
         model  =  DailyMachineHoursInput
         fields = "__all__"
@@ -47,13 +56,15 @@ class dailyMachineHoursForm(ModelForm):
 # create a form for daily machine hours
 class accuracyInputForm(ModelForm):
 
-    department = forms.ChoiceField(choices = Unit_choice,widget=forms.Select(attrs={'style': 'width:100px'}))
+    unit = forms.ChoiceField(choices = Unit_choice,widget=forms.Select(attrs={'style': 'width:100px'}))
     tool_no = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
     tool_name = forms.CharField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
-    machines = forms.ChoiceField(choices = machines_choice,widget=forms.Select(attrs={'style': 'width:100px'}))
-    accuracy = forms.IntegerField(widget=forms.NumberInput(attrs={'style': 'width:100px'}))
+    insert = forms.CharField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
+    turning = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
+    milling = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
+    edm = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
+    wire_cut = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
     num_of_rejects = forms.DateField(widget=forms.DateInput(attrs={'style': 'width:100px'}))
-    estimated_cost = forms.DateField(widget=forms.DateInput(attrs={'style': 'width:100px'}))
     insertion_date = forms.DateField(widget=forms.DateInput(attrs={'style': 'width:100px'}))
     class Meta:
         model  =  DailyMachineHoursInput
