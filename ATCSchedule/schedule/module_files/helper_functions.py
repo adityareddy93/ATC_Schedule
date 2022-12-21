@@ -20,7 +20,7 @@ def forcast_tool_output(df):
     # Buffer hours wiil be in percentage converting percentage to values
     # df['buffer_hours'] = df['estimated_hours'] + ( (df['estimated_hours']/df['buffer_hours']) * 100)
 
-    print(df)
+    # print(df)
     df = df.groupby(["unit", "tool_info", "machine", "insertion_date"], sort=False)[['estimated_hours', 'buffer_hours']].sum().reset_index()
 
     # Creating a primary key for total load on systems table (1st table)
@@ -84,12 +84,11 @@ def total_load_on_systems_output(total_load_on_systems_input):
     total_load_on_systems_output = forcast_tool_output(total_load_on_systems_input)
 
     actual_start_date_df = total_load_on_systems_output[['tool_info', 'actual_start_date']].drop_duplicates(subset = ['tool_info'])
-    # End logic to give the max date of machine tools.
+
     total_load_on_systems_output = total_load_on_systems_output[
         ["tool_info", "completion_date_with_out_buffer", "completion_date_with_buffer"]]
 
-    # print(total_load_on_systems_output)
-
+    # End logic to give the max date of machine tools.
     total_load_on_systems_output = total_load_on_systems_output[total_load_on_systems_output.groupby('tool_info').completion_date_with_out_buffer.transform('max') == total_load_on_systems_output['completion_date_with_out_buffer']]
 
     total_load_on_systems_output = pd.merge(total_load_on_systems_output,actual_start_date_df,on=['tool_info'],how='inner')
@@ -129,18 +128,60 @@ def daily_report_output(total_load_input, daily_report_input):
 
 def accuarcy_quality_report(quality_report_input):
 
-    quality_report_input.melt(id_vars=["unit", "tool_no", "tool_name", "num_of_rejects", "insertion_date"], 
+    quality_report_input = quality_report_input.drop('id', axis=1)
+    quality_report_input = quality_report_input.melt(id_vars=["unit", "tool_no", "tool_name", "insert", "num_of_rejects", "insertion_date"], 
         var_name="machine", 
         value_name="accuracy")
 
-    quality_report_input['tool_info'] = quality_report_input['tool_no'] + " " + quality_report_input['tool_name']
+    quality_report_input['accuracy'] = quality_report_input['accuracy'].astype(str).astype(int)
+
+    quality_report_input['tool_info'] = quality_report_input['tool_no'] + "_" + quality_report_input['tool_name']
     quality_report_input['estimated_cost'] = quality_report_input['num_of_rejects'] * 1000
     dff = quality_report_input.groupby(["unit", "tool_info", "machine"], sort=False)[['accuracy', 'num_of_rejects', 'estimated_cost']].sum().reset_index()
 
-    # replace insert add date with inserts
     # dff['quality_hours_pk'] = dff['unit'] + "_" + dff['tool_info'] + "_" + dff['machine']
 
     dff = dff[
         ["tool_info", "machine", "accuracy", "num_of_rejects", "estimated_cost"]]
 
     return dff
+
+def overall_efficiency_report(total_load_input, df1, df2):
+
+    # total_load_df = forcast_tool_output(total_load_input)
+    # df1 = daily_report_output(total_load_df, df1)
+    df2 = accuarcy_quality_report(df2)
+
+    # forcast_tool_output = total_load_on_systems_output[
+    #     ["tool_info", "completion_date_with_out_buffer", "completion_date_with_buffer"]]
+
+    # quality_report_input = quality_report_input.drop('id', axis=1)
+    # quality_report_input = quality_report_input.melt(id_vars=["unit", "tool_no", "tool_name", "insert", "num_of_rejects", "insertion_date"], 
+    #     var_name="machine", 
+    #     value_name="accuracy")
+
+    # quality_report_input['accuracy'] = quality_report_input['accuracy'].astype(str).astype(int)
+
+    # quality_report_input['tool_info'] = quality_report_input['tool_no'] + "_" + quality_report_input['tool_name']
+    # quality_report_input['estimated_cost'] = quality_report_input['num_of_rejects'] * 1000
+    # dff = quality_report_input.groupby(["unit", "tool_info", "machine"], sort=False)[['accuracy', 'num_of_rejects', 'estimated_cost']].sum().reset_index()
+
+    # print(dff)
+    # # dff['quality_hours_pk'] = dff['unit'] + "_" + dff['tool_info'] + "_" + dff['machine']
+
+    # dff = dff[
+    #     ["tool_info", "machine", "accuracy", "num_of_rejects", "estimated_cost"]]
+
+    return df2
+
+def usage_efficiency_report(df, df1, df2):
+
+    # df = forcast_tool_output(df)
+    # df1 = daily_report_output(df, df1)
+    # df2 = accuarcy_quality_report(df2)
+
+    # forcast_tool_output = total_load_on_systems_output[
+    #     ["tool_info", "completion_date_with_out_buffer", "completion_date_with_buffer"]]
+
+
+    return df

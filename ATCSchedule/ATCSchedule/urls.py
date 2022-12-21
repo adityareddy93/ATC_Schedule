@@ -18,7 +18,7 @@ from django.urls import path
 #from django.config.urls.static import static
 #from django.conf.settings import base,local
 
-from schedule.views import estimated_hours, daily_machine_hours, accuracy, total_load_on_sys_output, daily_report_hours_output, accuracy_output, base
+from schedule.views import estimated_hours, daily_machine_hours, accuracy, total_load_on_sys_output, daily_report_hours_output, accuracy_output, overall_effiency_output, usage_efficiency_output, base
 
 admin.site.site_header = "ATC Portal"
 admin.site.site_title = "ATC Admin Portal"
@@ -32,5 +32,7 @@ urlpatterns = [
     path(r'accuracy/',accuracy,name='Accuracy'),
     path(r'total_load_on_systems/',total_load_on_sys_output,name='Total Load On System Report'),
     path(r'quality_report/',accuracy_output,name='Quality Report'),
-    path(r'daily_report/',daily_report_hours_output,name='Daily Report')
+    path(r'overall_efficiency_report/',overall_effiency_output,name='Overall Efficiency Report'),
+    path(r'usage_efficiency_report/',usage_efficiency_output,name='Usage Efficiency Report'),
+    path(r'daily_report/',daily_report_hours_output,name='Daily Report'),
 ]

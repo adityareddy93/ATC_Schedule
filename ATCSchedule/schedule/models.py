@@ -67,6 +67,7 @@ class QualityReportInput(models.Model):
     unit = models.CharField('unit',max_length = 200,blank=True)
     tool_no = models.CharField('Tool Number',max_length = 200,blank=True)
     tool_name = models.CharField('Tool Name',max_length = 200,blank=True)
+    insert = models.CharField('Insert',max_length = 200,blank=True)
     turning = models.CharField('Turning', max_length = 200,blank=True)
     milling = models.CharField('Milling', max_length = 200,blank=True)
     edm = models.CharField('EDM', max_length = 200,blank=True)
@@ -78,4 +79,4 @@ class QualityReportInput(models.Model):
         db_table = "QualityReportInput"
 
     def __str__(self):
-        return str(self.insertion_date)+' '+ self.tool_name + ' '+self.machine
+        return str(self.insertion_date)+' '+ self.tool_name

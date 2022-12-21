@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from .forms import ContactForm, estimatedHoursForm, dailyMachineHoursForm, accuracyInputForm
 from .models import EstimatedHours, TotalLoadOnSystemsInput, DailyMachineHoursInput, QualityReportInput
-from .module_files.helper_functions import forcast_tool_output, daily_report_output, total_load_on_systems_output, accuarcy_quality_report
+from .module_files.helper_functions import daily_report_output, total_load_on_systems_output, accuarcy_quality_report, overall_efficiency_report, usage_efficiency_report
 from django.http import HttpResponseRedirect
 from django.db import connection
 import pandas as pd
@@ -80,18 +80,26 @@ def output_req_func(request, df, html, *args):
     else:
          # search = TotalLoadOnSystemsInput.objects.all().values()
         # df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
-        df1 = df
-        for arguments in args:
-            df1 = arguments
+        # Extracting values from *args
+        if args:
+            if len(args) == 1:
+                df1 = args[0]
+            elif len(args) == 2:
+                df1 = args[0]
+                df2 = args[1]
         # df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
+        # need to add try catch exception
         if (html == 'test_block.html'):
             output = total_load_on_systems_output(df)
         if (html == 'daily_report.html'):
             output = daily_report_output(df, df1)
-        if (html == 'accuracy_input.html'):
+        if (html == 'quality_report_output.html'):
             output = accuarcy_quality_report(df)
+        if (html == 'overall_efficiency_output.html'):
+            output = overall_efficiency_report(df, df1, df2)
+        if (html == 'usage_efficiency_report_output.html'):
+            output = usage_efficiency_report(df, df1, df2)
 
-        print(output)
         def convert_timestamp(item_date_object):
             if isinstance(item_date_object, (datetime.date, datetime.datetime)):
                 return item_date_object.strftime("%Y-%m-%d")
@@ -113,5 +121,17 @@ def daily_report_hours_output(request):
     return output_req_func(request, df, 'daily_report.html', df1)
 
 def accuracy_output(request):
-    df = pd.DataFrame(list(accuracyInputForm.objects.all().values()))
+    df = pd.DataFrame(list(QualityReportInput.objects.all().values()))
     return output_req_func(request, df, 'quality_report_output.html')
+
+def overall_effiency_output(request):
+    df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
+    df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
+    df2 = pd.DataFrame(list(QualityReportInput.objects.all().values()))
+    return output_req_func(request, df, 'overall_efficiency_output.html', df1, df2)
+
+def usage_efficiency_output(request):
+    df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
+    df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
+    df2 = pd.DataFrame(list(QualityReportInput.objects.all().values()))
+    return output_req_func(request, df, 'usage_efficiency_report_output.html', df1, df2)
