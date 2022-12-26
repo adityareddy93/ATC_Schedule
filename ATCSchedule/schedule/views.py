@@ -87,7 +87,22 @@ def output_req_func(request, df, html, *args):
             elif len(args) == 2:
                 df1 = args[0]
                 df2 = args[1]
+        
         # df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
+
+        def convert_tuple_dict_to_dict(output):
+            lst = []
+            for val in output:
+                new_dict = {}
+                for key, value in val.items():
+                    new_dict[key[0] + '_' + key[1]] = value
+                if 'index_' in new_dict:
+                    new_dict.pop('index_')
+                else:
+                    continue
+                lst.append(new_dict)
+            return lst
+        
         # need to add try catch exception
         if (html == 'test_block.html'):
             output = total_load_on_systems_output(df)
@@ -98,12 +113,16 @@ def output_req_func(request, df, html, *args):
         if (html == 'overall_efficiency_output.html'):
             output = overall_efficiency_report(df, df1, df2)
         if (html == 'usage_efficiency_report_output.html'):
-            output = usage_efficiency_report(df, df1, df2)
+            output = usage_efficiency_report(df, df1)
 
         def convert_timestamp(item_date_object):
             if isinstance(item_date_object, (datetime.date, datetime.datetime)):
                 return item_date_object.strftime("%Y-%m-%d")
+        
         dict_ = output.reset_index().to_dict(orient ='records')
+        if ((html == 'daily_report.html') | (html == 'usage_efficiency_report_output.html')):
+            dict_ = convert_tuple_dict_to_dict(dict_)
+        # new_dict_ = convert_tuple_dict_to_dict(dict_)
         json_records = json.dumps(dict_, default=convert_timestamp)
         data = []
         data = json.loads(json_records)
@@ -133,5 +152,4 @@ def overall_effiency_output(request):
 def usage_efficiency_output(request):
     df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
     df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
-    df2 = pd.DataFrame(list(QualityReportInput.objects.all().values()))
-    return output_req_func(request, df, 'usage_efficiency_report_output.html', df1, df2)
+    return output_req_func(request, df, 'usage_efficiency_report_output.html', df1)

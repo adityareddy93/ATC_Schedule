@@ -94,7 +94,7 @@ def total_load_on_systems_output(total_load_on_systems_input):
     total_load_on_systems_output = pd.merge(total_load_on_systems_output,actual_start_date_df,on=['tool_info'],how='inner')
     return total_load_on_systems_output
 
-def daily_report_output(total_load_input, daily_report_input):
+def daily_report_output(total_load_input, daily_report_input, *args):
     # daily_hours_df['tool_info'] = daily_hours_df['tool_no'] + daily_hours_df['tool_name']
     daily_report_input.melt(id_vars=["unit", "tool_no", "tool_name", "insert", "num_of_hours", "daily_date"], 
         var_name="machine", 
@@ -109,7 +109,7 @@ def daily_report_output(total_load_input, daily_report_input):
     total_load_df = forcast_tool_output(total_load_input)
 
     total_load_df = total_load_df[
-        ["total_load_pk", "completion_date_with_out_buffer", "estimated_hours", "capacity_day"]]
+        ["total_load_pk", "completion_date_with_out_buffer", "estimated_hours", "capacity_day", "buffer_hours"]]
 
     combined_df = pd.merge(total_load_df, dff, how='right', left_on="total_load_pk", right_on="daily_hours_pk")
 
@@ -121,10 +121,20 @@ def daily_report_output(total_load_input, daily_report_input):
 
     combined_df['completion_date_with_out_buffer'] = combined_df['completion_date_with_out_buffer'] + pd.to_timedelta(combined_df['daily_hours_diff_in_days'], unit='D')
 
+    # if (args):
+    #     for str in args:
+    #         if str == 'USAGE_EFFICIENCY':
+    #             return combined_df[["tool_info", "machine", "completion_date_with_out_buffer", "estimated_hours", "num_of_hours", "buffer_hours"]]
+    #         else:
+    #             break
+
     combined_df = combined_df[
         ["tool_info", "machine", "completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]]
 
-    return combined_df
+    pivoted_df = combined_df.pivot(index='tool_info', columns='machine', values=["completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]).reset_index()
+    pivoted_df.columns.name=None
+
+    return pivoted_df
 
 def accuarcy_quality_report(quality_report_input):
 
@@ -136,7 +146,7 @@ def accuarcy_quality_report(quality_report_input):
     quality_report_input['accuracy'] = quality_report_input['accuracy'].astype(str).astype(int)
 
     quality_report_input['tool_info'] = quality_report_input['tool_no'] + "_" + quality_report_input['tool_name']
-    quality_report_input['estimated_cost'] = quality_report_input['num_of_rejects'] * 1000
+    quality_report_input['estimated_cost'] = quality_report_input['num_of_rejects'] * 2000
     dff = quality_report_input.groupby(["unit", "tool_info", "machine"], sort=False)[['accuracy', 'num_of_rejects', 'estimated_cost']].sum().reset_index()
 
     # dff['quality_hours_pk'] = dff['unit'] + "_" + dff['tool_info'] + "_" + dff['machine']
@@ -144,12 +154,13 @@ def accuarcy_quality_report(quality_report_input):
     dff = dff[
         ["tool_info", "machine", "accuracy", "num_of_rejects", "estimated_cost"]]
 
+
     return dff
 
-def overall_efficiency_report(total_load_input, df1, df2):
+def overall_efficiency_report(total_load_input, daily_report_input, df2):
 
-    # total_load_df = forcast_tool_output(total_load_input)
-    # df1 = daily_report_output(total_load_df, df1)
+    total_load_df = forcast_tool_output(total_load_input)
+    daily_report_df = daily_report_output(total_load_df, daily_report_input)
     df2 = accuarcy_quality_report(df2)
 
     # forcast_tool_output = total_load_on_systems_output[
@@ -174,8 +185,35 @@ def overall_efficiency_report(total_load_input, df1, df2):
 
     return df2
 
-def usage_efficiency_report(df, df1, df2):
+def usage_efficiency_report(total_load_input, daily_report_input):
 
+    total_load_input = total_load_input[["unit", "tool_no", "tool_name", "machine", "estimated_hours", "buffer_hours"]]
+    # Buffer hours wiil be in percentage converting percentage to values
+    # df['buffer_hours'] = df['estimated_hours'] + ( (df['estimated_hours']/df['buffer_hours']) * 100)
+    total_load_input['tool_info'] = total_load_input['tool_no'] + " " + total_load_input['tool_name']
+
+    total_load_df = total_load_input.groupby(["unit", "tool_info", "machine"], sort=False)[['estimated_hours', 'buffer_hours']].sum().reset_index()
+
+    total_load_df['total_load_pk'] = total_load_df['unit'] + '_' + total_load_df['tool_info'] + '_' + total_load_df['machine']
+
+
+    daily_report_input = daily_report_input[["unit", "tool_no", "tool_name", "machine", "num_of_hours", "daily_date"]]
+    daily_report_input['tool_info'] = daily_report_input['tool_no'] + " " + daily_report_input['tool_name']
+
+    daily_report_df = daily_report_input.groupby(["unit", "tool_info", "machine", "daily_date"], sort=False).num_of_hours.sum().reset_index()
+
+    daily_report_df['daily_hours_pk'] = daily_report_df['unit'] + '_' + daily_report_df['tool_info'] + '_' + daily_report_df['machine']
+
+
+    total_load_df = total_load_df[["total_load_pk", "estimated_hours", "buffer_hours"]]
+    daily_report_df = daily_report_df[["daily_hours_pk", "tool_info", "machine", "num_of_hours"]]
+    combined_df = pd.merge(total_load_df, daily_report_df, how='right', left_on="total_load_pk", right_on="daily_hours_pk")
+
+    combined_df["balance_hours_as_on_today"] = combined_df["estimated_hours"] - combined_df["num_of_hours"]
+
+    pivoted_df = combined_df.pivot_table(index='tool_info', columns='machine', values=["balance_hours_as_on_today", "estimated_hours", "num_of_hours", "buffer_hours"]).reset_index()
+    pivoted_df.columns.name=None
+    # print(pivoted_df)
     # df = forcast_tool_output(df)
     # df1 = daily_report_output(df, df1)
     # df2 = accuarcy_quality_report(df2)
@@ -183,5 +221,11 @@ def usage_efficiency_report(df, df1, df2):
     # forcast_tool_output = total_load_on_systems_output[
     #     ["tool_info", "completion_date_with_out_buffer", "completion_date_with_buffer"]]
 
+    print(pivoted_df)
+    return pivoted_df
 
-    return df
+
+# daily_report_df = daily_report_output(total_load_input, daily_report_input, usage_efficiency_str)
+
+#     pivoted_df = daily_report_df.pivot(index='tool_info', columns='machine', values=["completion_date_with_out_buffer", "estimated_hours", "num_of_hours", "buffer_hours"]).reset_index()
+#     pivoted_df.columns.name=None

@@ -74,7 +74,7 @@
   
   <table id="customers">
     <tr>
-      <th colspan="1">Tool Information</th>
+      <th>Tool Information</th>
       <th colspan="3">Turning</th>
       <th colspan="3">Milling</th>
       <th colspan="3">EDM</th>
@@ -94,8 +94,26 @@
       <th>Planned</th>
       <th>Actual</th>
       <th>Completion Date</th>
-    </tr>  
+    </tr> 
+    {% for i in d %}
+    <tr>
+      <td>{{i.tool_info_}}</td>
+      <td>{{i.estimated_hours_turning}}</td>
+      <td>{{i.num_of_hours_turning}}</td>
+      <td>{{i.completion_date_with_out_buffer_turning}}</td>
+      <td>{{i.estimated_hours_milling}}</td>
+      <td>{{i.num_of_hours_milling}}</td>
+      <td>{{i.completion_date_with_out_buffer_milling}}</td>
+      <td>{{i.estimated_hours_edm}}</td>
+      <td>{{i.num_of_hours_edm}}</td>
+      <td>{{i.completion_date_with_out_buffer_edm}}</td>
+      <td>{{i.estimated_hours_wire_cut}}</td>
+      <td>{{i.num_of_hours_wire_cut}}</td>
+      <td>{{i.completion_date_with_out_buffer_wire_cut}}</td>
+    </tr>
+    {% endfor %}
   </table>
+  
   </center>
   </form>
   </body>
@@ -107,3 +125,128 @@
   </script>
   {% endblock %}
   
+
+
+
+  <!-- <td>
+    {% if i.machine == "milling" %}
+      {{i.num_of_hours}}
+    {% endif %}
+  </td>
+  <td>
+    {% if i.machine == "milling" %}
+      {{i.estimated_hours}}
+    {% endif %}
+  </td>
+  <td>
+    {% if i.machine == "milling" %}
+      {{i.completion_date_with_out_buffer}}
+    {% endif %}
+  </td>
+  <td>
+    {% if i.machine == "edm" %}
+      {{i.num_of_hours}}
+    {% endif %}
+  </td>
+  <td>
+    {% if i.machine == "edm" %}
+      {{i.estimated_hours}}
+    {% endif %}
+  </td>
+  <td>
+    {% if i.machine == "edm" %}
+      {{i.completion_date_with_out_buffer}}
+    {% endif %}
+  </td>
+  <td>
+    {% if i.machine == "wire_cut" %}
+      {{i.num_of_hours}}
+    {% endif %}
+  </td>
+  <td>
+    {% if i.machine == "wire_cut" %}
+      {{i.estimated_hours}}
+    {% endif %}
+  </td>
+  <td>
+    {% if i.machine == "wire_cut" %}
+      {{i.completion_date_with_out_buffer}}
+    {% endif %}
+  </td> -->
+
+
+
+  <!-- <tr>
+    <th>Tool Information</th>
+    <th colspan="3">Turning</th>
+    <th colspan="3">Milling</th>
+    <th colspan="3">EDM</th>
+    <th colspan="3">Wire Cut</th>
+  </tr>
+  <tr>
+    <th></th>
+    <th>Planned</th>
+    <th>Actual</th>
+    <th>Completion Date</th>
+    <th>Planned</th>
+    <th>Actual</th>
+    <th>Completion Date</th>
+    <th>Planned</th>
+    <th>Actual</th>
+    <th>Completion Date</th>
+    <th>Planned</th>
+    <th>Actual</th>
+    <th>Completion Date</th>
+  </tr> 
+  {% for i in d %}
+  <tr>
+    <td>
+      {{i.tool_info}}
+      {% if i.machine == "turning" %}
+      <td>{{i.num_of_hours}}</td>
+      <td>{{i.estimated_hours}}</td>
+      <td>{{i.completion_date_with_out_buffer}}</td>
+      {% endif %}
+      {% if i.machine == "milling" %}
+      <td>{{i.num_of_hours}}</td>
+      <td>{{i.estimated_hours}}</td>
+      <td>{{i.completion_date_with_out_buffer}}</td>
+      {% endif %}
+      {% if i.machine == "edm" %}
+      <td>{{i.num_of_hours}}</td>
+      <td>{{i.estimated_hours}}</td>
+      <td>{{i.completion_date_with_out_buffer}}</td>
+      {% endif %}
+      {% if i.machine == "wire_cut" %}
+      <td>{{i.num_of_hours}}</td>
+      <td>{{i.estimated_hours}}</td>
+      <td>{{i.completion_date_with_out_buffer}}</td>
+      {% endif %}
+    </td>
+  </tr> -->
+  <!-- {% endfor %} -->
+
+  <!-- <tr>
+    {% if rowIndex == "tools" %}
+    {% endif %}
+    {% if rowIndex == "turning" %}
+    <th>{{rowIndex.num_of_hours}}</th>
+    <td>{{rowIndex.estimated_hours}}</td>
+    <td>{{rowIndex.completion_date_with_out_buffer}}</td>
+    {% endif %}
+    {% if rowIndex == "milling" %}
+    <th>{{rowIndex.num_of_hours}}</th>
+    <td>{{rowIndex.estimated_hours}}</td>
+    <td>{{rowIndex.completion_date_with_out_buffer}}</td>
+    {% endif %}
+    {% if rowIndex == "edm" %}
+    <th>{{rowIndex.num_of_hours}}</th>
+    <td>{{rowIndex.estimated_hours}}</td>
+    <td>{{rowIndex.completion_date_with_out_buffer}}</td>
+    {% endif %}
+    {% if rowIndex == "wire_cut" %}
+    <th>{{rowIndex.num_of_hours}}</th>
+    <td>{{rowIndex.estimated_hours}}</td>
+    <td>{{rowIndex.completion_date_with_out_buffer}}</td>
+    {% endif %}
+  </tr> -->

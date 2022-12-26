@@ -91,7 +91,28 @@
         <th>balance hours as on today</th>
         <th>Expected ideal hours as on today</th>
         <th>Expected completion hours as on today(Buffer time)</th>
-      </tr>  
+      </tr> 
+      {% for i in d %}
+      <tr>
+        <td>{{i.tool_info_}}</td>
+        <td>{{i.num_of_hours_turning}}</td>
+        <td>{{i.balance_hours_as_on_today_turning}}</td>
+        <td>{{i.estimated_hours_turning}}</td>
+        <td>{{i.buffer_hours_turning}}</td>
+        <td>{{i.num_of_hours_milling}}</td>
+        <td>{{i.balance_hours_as_on_today_milling}}</td>
+        <td>{{i.estimated_hours_milling}}</td>
+        <td>{{i.buffer_hours_milling}}</td>
+        <td>{{i.num_of_hours_edm}}</td>
+        <td>{{i.balance_hours_as_on_today_edm}}</td>
+        <td>{{i.estimated_hours_edm}}</td>
+        <td>{{i.buffer_hours_edm}}</td>
+        <td>{{i.num_of_hours_wire_cut}}</td>
+        <td>{{i.balance_hours_as_on_today_wire_cut}}</td>
+        <td>{{i.estimated_hours_wire_cut}}</td>
+        <td>{{i.buffer_hours_wire_cut}}</td>
+    </tr>
+    {% endfor %}
     </table>
     </center>
     </form>
