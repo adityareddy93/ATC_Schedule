@@ -120,7 +120,7 @@ def output_req_func(request, df, html, *args):
                 return item_date_object.strftime("%Y-%m-%d")
         
         dict_ = output.reset_index().to_dict(orient ='records')
-        if ((html == 'daily_report.html') | (html == 'usage_efficiency_report_output.html')):
+        if ((html == 'daily_report.html') | (html == 'usage_efficiency_report_output.html') | (html == 'overall_efficiency_output.html')):
             dict_ = convert_tuple_dict_to_dict(dict_)
         # new_dict_ = convert_tuple_dict_to_dict(dict_)
         json_records = json.dumps(dict_, default=convert_timestamp)

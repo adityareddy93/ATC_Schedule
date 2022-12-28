@@ -121,12 +121,12 @@ def daily_report_output(total_load_input, daily_report_input, *args):
 
     combined_df['completion_date_with_out_buffer'] = combined_df['completion_date_with_out_buffer'] + pd.to_timedelta(combined_df['daily_hours_diff_in_days'], unit='D')
 
-    # if (args):
-    #     for str in args:
-    #         if str == 'USAGE_EFFICIENCY':
-    #             return combined_df[["tool_info", "machine", "completion_date_with_out_buffer", "estimated_hours", "num_of_hours", "buffer_hours"]]
-    #         else:
-    #             break
+    if (args):
+        for str in args:
+            if str == 'OVERALL_EFFICIENCY':
+                return combined_df[["daily_hours_pk", "tool_info", "machine", "daily_hours_diff_in_days"]]
+            else:
+                break
 
     combined_df = combined_df[
         ["tool_info", "machine", "completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]]
@@ -145,7 +145,7 @@ def accuarcy_quality_report(quality_report_input):
 
     quality_report_input['accuracy'] = quality_report_input['accuracy'].astype(str).astype(int)
 
-    quality_report_input['tool_info'] = quality_report_input['tool_no'] + "_" + quality_report_input['tool_name']
+    quality_report_input['tool_info'] = quality_report_input['tool_no'] + " " + quality_report_input['tool_name']
     quality_report_input['estimated_cost'] = quality_report_input['num_of_rejects'] * 2000
     dff = quality_report_input.groupby(["unit", "tool_info", "machine"], sort=False)[['accuracy', 'num_of_rejects', 'estimated_cost']].sum().reset_index()
 
@@ -157,33 +157,35 @@ def accuarcy_quality_report(quality_report_input):
 
     return dff
 
-def overall_efficiency_report(total_load_input, daily_report_input, df2):
+def overall_efficiency_report(total_load_input, daily_report_input, quality_report_input):
 
     total_load_df = forcast_tool_output(total_load_input)
-    daily_report_df = daily_report_output(total_load_df, daily_report_input)
-    df2 = accuarcy_quality_report(df2)
+    daily_report_df = daily_report_output(total_load_input, daily_report_input, 'OVERALL_EFFICIENCY')
+    quality_report_input = accuarcy_quality_report(quality_report_input)
 
-    # forcast_tool_output = total_load_on_systems_output[
-    #     ["tool_info", "completion_date_with_out_buffer", "completion_date_with_buffer"]]
+    total_load_df["overall_total_load_pk"] = total_load_df['unit'] + '_' + total_load_df['tool_info'] + '_' + total_load_df['machine']
+    total_load_df = total_load_df[["overall_total_load_pk", "total_actual_days"]]
 
-    # quality_report_input = quality_report_input.drop('id', axis=1)
-    # quality_report_input = quality_report_input.melt(id_vars=["unit", "tool_no", "tool_name", "insert", "num_of_rejects", "insertion_date"], 
-    #     var_name="machine", 
-    #     value_name="accuracy")
+    combined_df = pd.merge(total_load_df, daily_report_df, how='right', left_on="overall_total_load_pk", right_on="daily_hours_pk")
 
-    # quality_report_input['accuracy'] = quality_report_input['accuracy'].astype(str).astype(int)
+    combined_df["daily_hours_diff_in_days"] = combined_df["daily_hours_diff_in_days"].abs()
+    combined_df["daily_total_diff_days"] = combined_df["total_actual_days"] - combined_df["daily_hours_diff_in_days"]
 
-    # quality_report_input['tool_info'] = quality_report_input['tool_no'] + "_" + quality_report_input['tool_name']
-    # quality_report_input['estimated_cost'] = quality_report_input['num_of_rejects'] * 1000
-    # dff = quality_report_input.groupby(["unit", "tool_info", "machine"], sort=False)[['accuracy', 'num_of_rejects', 'estimated_cost']].sum().reset_index()
+    combined_df["overall_efficiency"] = round((combined_df["total_actual_days"] / combined_df["daily_total_diff_days"]) * 100)
 
-    # print(dff)
-    # # dff['quality_hours_pk'] = dff['unit'] + "_" + dff['tool_info'] + "_" + dff['machine']
+    required_combined_df = combined_df[["tool_info", "machine", "overall_efficiency"]]
 
-    # dff = dff[
-    #     ["tool_info", "machine", "accuracy", "num_of_rejects", "estimated_cost"]]
+    # print(quality_report_input)
+    accuracy_df = quality_report_input[["tool_info", "machine", "num_of_rejects"]]
+    efficiency_with_rejects_df = pd.merge(required_combined_df, accuracy_df, how='left', on=["tool_info", "machine"])
+    
+    efficiency_with_rejects_df = efficiency_with_rejects_df[["tool_info", "machine", "overall_efficiency", "num_of_rejects"]]
 
-    return df2
+    print(accuracy_df)
+    pivoted_df = efficiency_with_rejects_df.pivot_table(index='tool_info', columns='machine', values=["overall_efficiency", "num_of_rejects"]).reset_index()
+    pivoted_df.columns.name=None
+    # print(efficiency_with_rejects_df)
+    return pivoted_df
 
 def usage_efficiency_report(total_load_input, daily_report_input):
 
@@ -213,19 +215,6 @@ def usage_efficiency_report(total_load_input, daily_report_input):
 
     pivoted_df = combined_df.pivot_table(index='tool_info', columns='machine', values=["balance_hours_as_on_today", "estimated_hours", "num_of_hours", "buffer_hours"]).reset_index()
     pivoted_df.columns.name=None
-    # print(pivoted_df)
-    # df = forcast_tool_output(df)
-    # df1 = daily_report_output(df, df1)
-    # df2 = accuarcy_quality_report(df2)
 
-    # forcast_tool_output = total_load_on_systems_output[
-    #     ["tool_info", "completion_date_with_out_buffer", "completion_date_with_buffer"]]
+    return pivoted_df        
 
-    print(pivoted_df)
-    return pivoted_df
-
-
-# daily_report_df = daily_report_output(total_load_input, daily_report_input, usage_efficiency_str)
-
-#     pivoted_df = daily_report_df.pivot(index='tool_info', columns='machine', values=["completion_date_with_out_buffer", "estimated_hours", "num_of_hours", "buffer_hours"]).reset_index()
-#     pivoted_df.columns.name=None

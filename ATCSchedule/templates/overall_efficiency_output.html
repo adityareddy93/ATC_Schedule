@@ -75,15 +75,28 @@
       </tr>
       <tr>
         <th></th>
-        <th>Efficiency</th>
+        <th>Efficiency (%)</th>
         <th>Quality (Rejects)</th>
-        <th>Efficiency</th>
+        <th>Efficiency (%)</th>
         <th>Quality (Rejects)</th>
-        <th>Efficiency</th>
+        <th>Efficiency (%)</th>
         <th>Quality (Rejects)</th>
-        <th>Efficiency</th>
+        <th>Efficiency (%)</th>
         <th>Quality (Rejects)</th>
-      </tr>  
+      </tr>
+      {% for i in d %}
+      <tr>
+        <td>{{i.tool_info_}}</td>
+        <td>{{i.overall_efficiency_turning}}</td>
+        <td>{{i.num_of_rejects_turning}}</td>
+        <td>{{i.overall_efficiency_milling}}</td>
+        <td>{{i.num_of_rejects_milling}}</td>
+        <td>{{i.overall_efficiency_edm}}</td>
+        <td>{{i.num_of_rejects_edm}}</td>
+        <td>{{i.overall_efficiency_wire_cut}}</td>
+        <td>{{i.num_of_rejects_wire_cut}}</td>
+    </tr>
+    {% endfor %}
     </table>
     </center>
     </form>
