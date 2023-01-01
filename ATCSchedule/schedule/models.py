@@ -2,29 +2,7 @@ from django.db import models
 
 # Create your models here.
 
-class EstimatedHours(models.Model):
-    tool_info = models.CharField('Tool Info',max_length = 200,blank=True,null=True)
-    insert = models.CharField('Insert', max_length = 200,blank=True,null=True)
-    machine = models.CharField('machine', max_length = 200,blank=True,null=True)
-    estimated_hours = models.IntegerField('Estimated Hours',blank=True,null=True)
-    date = models.DateField('Insertion Date',blank=True,null=True)
-    #venue = models.ForeignKey(venue, blank = True, null=True, on_delete = models.CASCADE)
 
-    def __str__(self):
-        return str(self.date)+' '+ self.tool_info + ' '+self.machine
-class DailyMachineHours(models.Model):
-    tool_info = models.CharField('Tool Info',max_length = 200,blank=True)
-    insert = models.CharField('Insert', max_length = 200,blank=True)
-    machine = models.CharField('machines', max_length = 200,blank=True)
-    daily_hours = models.IntegerField('Actual Machine Hours',blank=True,null=True)
-    date = models.DateField('Insertion Date',blank=True,null=True)
-    #venue = models.ForeignKey(venue, blank = True, null=True, on_delete = models.CASCADE)
-    comments = models.TextField('Comments', blank=True,null=True,help_text='text')
-    class Meta():
-        db_table = "Daily_Machine_Hours"
-
-    def __str__(self):
-        return str(self.date)+' '+ self.tool_info + ' '+self.machine
 
 # Creating input table for the total load on systems
 class TotalLoadOnSystemsInput(models.Model):

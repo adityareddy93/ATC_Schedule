@@ -142,6 +142,57 @@
     
     </table>
     </center>
+	
+	<script>
+	
+	var subjectObject = {
+  "unit 1": {
+    "turning": ["CTX 310 eco", "NLX2000Y/500"],
+    "milling": ["S 33","S 56","F3","HSM 500","MILL S 500","HSM 300","4KS"],
+    "edm": ["FO 350 SP","FO 35 PSL","FO 350 Gamma","FORM 200","Workmaster Robot"],
+    "wire cut" : ["CUT 200 SP","CUT 300","CUT 20 P","CUT 30 P","DRILL 20"]
+  },
+  "unit 2": {
+    "turning": ["SJE 10 LM", "JOBBER-XL","LT 2 LM500"],
+    "milling": ["HEM 1200","VF-2SS","FV-85A","4KS"],
+	"edm": ["F0 23 UP"],
+  },
+  "unit 4": {
+    "turning": ["QTE-200 SG"],
+    "milling": ["F5","VF-2-I","ROBODRILL (ALPHA) D21MiA","(Details not available at Unit-4)","TUN-20YA"],
+	"edm": ["F0 23 UP","AG40L"],
+	"wire cut": ["DRILL 11 EDM (wire drill)","SL400G","AL400G","RIVER 300 (wire drill)"]
+  },
+}
+window.onload = function() {
+  var subjectSel = document.getElementById("department");
+  var topicSel = document.getElementById("machine");
+  var chapterSel = document.getElementById("machine_id");
+  //for (var x in subjectObject) {
+    //subjectSel.options[subjectSel.options.length] = new Option(x, x);
+  //}
+  subjectSel.onchange = function() {
+    //empty Chapters- and Topics- dropdowns
+    chapterSel.length = 1;
+    topicSel.length = 1;
+    //display correct values
+    for (var y in subjectObject[this.value]) {
+      topicSel.options[topicSel.options.length] = new Option(y, y);
+    }
+  }
+  topicSel.onchange = function() {
+    //empty Chapters dropdown
+    chapterSel.length = 1;
+    //display correct values
+    var z = subjectObject[subjectSel.value][this.value];
+    for (var i = 0; i < z.length; i++) {
+      chapterSel.options[chapterSel.options.length] = new Option(z[i], z[i]);
+    }
+  }
+}
+
+
+</script>
     
         {% endif %}
     {% endblock %}

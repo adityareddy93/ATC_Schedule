@@ -1,14 +1,62 @@
 from django.http import HttpResponse
-from django.shortcuts import render
-from .forms import ContactForm, estimatedHoursForm, dailyMachineHoursForm, accuracyInputForm
-from .models import EstimatedHours, TotalLoadOnSystemsInput, DailyMachineHoursInput, QualityReportInput
+from django.shortcuts import render,redirect
+from django.contrib import messages
+from .forms import ContactForm, estimatedHoursForm, dailyMachineHoursForm, accuracyInputForm, CreateRegisterForm
+from .models import  TotalLoadOnSystemsInput, DailyMachineHoursInput, QualityReportInput
 from .module_files.helper_functions import daily_report_output, total_load_on_systems_output, accuarcy_quality_report, overall_efficiency_report, usage_efficiency_report
 from django.http import HttpResponseRedirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import cache_control
+from .decorator_ import userauthentication,allowed_users
 from django.db import connection
 import pandas as pd
 import json
 import datetime
 
+# Create your views here.
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def registerPage(request):
+    form = CreateRegisterForm()
+    if request.method == 'POST':
+        form = CreateRegisterForm(request.POST)
+        if form.is_valid():
+            print(form)
+            form.save()
+            user = form.cleaned_data.get('username')
+            messages.success(request,"Account was created for {}".format(user))
+            return redirect('/login')
+    context={'form':form}
+    return render(request,'register.html',context)
+
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def loginPage(request):
+    if request.method=='POST':
+        u_name = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=u_name, password = password)
+
+        if user is not None:
+            login(request,user)
+            return redirect('/')
+        else:
+            messages.info(request,"Username or Password is incorrect")
+
+    context={}
+    return render(request,'login.html',context)
+
+
+@login_required#(login_url='Login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def logoutpage(request):
+    if request.method == "POST":
+        logout(request)
+    return redirect('/login')
+
+
+@login_required(login_url='Login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 # Create your views here.
 def base(request):
     return render(request,'home1.html',{"bool_val":True,'developer':"DEVELOPED BY ARN TECH GROUP"})
@@ -21,12 +69,19 @@ def input_page_req_func(request, input_form, submit_req_str, df, html):
     if request.method == "POST":
         print("check 2")
         form = input_form(request.POST)
+        #print(form.errors)
+        print("-----------------------------------------------------------")
         print(form)
+        print("-----------------------------------------------------------")
         if form.is_valid():
+            print("----------------------------------------------------------------")
+            print("success")
+            print("----------------------------------------------------------------")
             form.save()
             return HttpResponseRedirect(submit_req_str)
         else:
             form = input_form
+            print("second part")
             if 'submit' in request.GET:
                 submit=True
     # df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
@@ -41,17 +96,27 @@ def input_page_req_func(request, input_form, submit_req_str, df, html):
     data = json.loads(json_records)
     print(data)
     return render(request,html ,{'d':data,'form':form,"Submit":submit})
-
+    
+@login_required(login_url='Login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 # Input page creataion for estimated hours
 def estimated_hours(request):
     df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
+    print(df.columns)
     return input_page_req_func(request, estimatedHoursForm, '/estimated_hours?submit=True', df, 'form.html')
-
+    
+    
+@login_required(login_url='Login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 # Input page creataion for estimated hours
 def daily_machine_hours(request):
     df = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
+    print(df)
     return input_page_req_func(request, dailyMachineHoursForm, '/daily_machine_hours?submit=True', df, 'daily_report_input.html')
-
+    
+    
+@login_required(login_url='Login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 # Input page creataion for quality report quality report and accuracy are same.
 def accuracy(request):
     df = pd.DataFrame(list(QualityReportInput.objects.all().values()))
@@ -128,27 +193,45 @@ def output_req_func(request, df, html, *args):
         data = json.loads(json_records)
         context = {'d': data}
         return render(request, html, context)
-
+        
+@login_required(login_url='Login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@allowed_users(allowed_roles=['admin'])
 def total_load_on_sys_output(request):
     df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
     return output_req_func(request, df, 'test_block.html')
+    
 
-
+@login_required(login_url='Login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@allowed_users(allowed_roles=['admin'])
 def daily_report_hours_output(request):
     df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
     df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
     return output_req_func(request, df, 'daily_report.html', df1)
-
+    
+    
+@login_required(login_url='Login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@allowed_users(allowed_roles=['admin'])
 def accuracy_output(request):
     df = pd.DataFrame(list(QualityReportInput.objects.all().values()))
     return output_req_func(request, df, 'quality_report_output.html')
-
+    
+    
+@login_required(login_url='Login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@allowed_users(allowed_roles=['admin'])
 def overall_effiency_output(request):
     df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
     df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
     df2 = pd.DataFrame(list(QualityReportInput.objects.all().values()))
     return output_req_func(request, df, 'overall_efficiency_output.html', df1, df2)
-
+    
+    
+@login_required(login_url='Login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@allowed_users(allowed_roles=['admin'])
 def usage_efficiency_output(request):
     df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
     df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
