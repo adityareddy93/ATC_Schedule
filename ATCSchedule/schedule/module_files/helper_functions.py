@@ -2,7 +2,10 @@ import pandas as pd
 import json
 import datetime
 
-a_dict = {'turning': 64, 'milling': 168, 'edm': 96, 'wire_cut': 96}
+a_dict_unit_1 = {'turning': 2, 'milling': 7, 'edm': 5, 'wire_cut': 6}
+a_dict_unit_2 = {'turning': 3, 'milling': 5, 'edm': 2, 'wire_cut': 0}
+a_dict_unit_3 = {'turning': 0, 'milling': 0, 'edm': 0, 'wire_cut': 0}
+a_dict_unit_4 = {'turning': 2, 'milling': 7, 'edm': 4, 'wire_cut': 4}
 # Helper function to check Sunday and get Monday date
 def check_weekend(date):
     if date.weekday() == 6:
@@ -10,8 +13,26 @@ def check_weekend(date):
     else:
         return date
 
+def return_unit_capacity(unit, machine_name):
+    capacity_value = 1
+    if unit == 'unit 1':
+        capacity_value = a_dict_unit_1.get(machine_name)
+    elif unit == 'unit 2':
+        capacity_value = a_dict_unit_2.get(machine_name)
+    elif unit == 'unit 3':
+        capacity_value = a_dict_unit_3.get(machine_name)
+    elif unit == 'unit 4':
+        capacity_value = a_dict_unit_4.get(machine_name)
+    else:
+        capacity_value = capacity_value
+
+    return capacity_value * 24
+
 # Calculate forcast date for total load on systems.
 def forcast_tool_output(df):
+    # print(df.dtypes)
+    df = df.applymap(lambda x: x.lower() if type(x) == str else x)
+
     df['tool_info'] = df['tool_no'] + " " + df['tool_name']
 
     df['estimated_hours'] = df['estimated_hours'].fillna(0)
@@ -30,9 +51,9 @@ def forcast_tool_output(df):
     df['insertion_date'] = pd.to_datetime(df['insertion_date'], format='%Y-%m-%d')
 
     # Can be removed once we add this column to table
-    df["capacity_day"] = df["machine"].apply(lambda x: a_dict.get(x))
+    # df['capacity_day'] = return_unit_capacity(df.loc[i, 'unit'], df.loc[i, 'machine'])
+    df["capacity_day"] = df.apply(lambda x: return_unit_capacity(x['unit'], x['machine']), axis = 1)
 
-    # print(df)
     # Total actual days
     df['total_actual_days'] = round(df['estimated_hours'] / df['capacity_day'])
 
@@ -95,6 +116,10 @@ def total_load_on_systems_output(total_load_on_systems_input):
     return total_load_on_systems_output
 
 def daily_report_output(total_load_input, daily_report_input, *args):
+
+    # Convert input to lower case
+    daily_report_input = daily_report_input.applymap(lambda x: x.lower() if type(x) == 'str' else x)
+
     # daily_hours_df['tool_info'] = daily_hours_df['tool_no'] + daily_hours_df['tool_name']
     daily_report_input.melt(id_vars=["unit", "tool_no", "tool_name", "insert", "num_of_hours", "daily_date"],
         var_name="machine",
@@ -140,6 +165,8 @@ def daily_report_output(total_load_input, daily_report_input, *args):
 
 def accuarcy_quality_report(quality_report_input, *args):
 
+    # Convert input to lower case
+    quality_report_input = quality_report_input.applymap(lambda x: x.lower() if type(x) == str else x)
     quality_report_input = quality_report_input.drop('id', axis=1)
     quality_report_input = quality_report_input.melt(id_vars=["unit", "tool_no", "tool_name", "insert", "num_of_rejects", "insertion_date"],
         var_name="machine",
@@ -197,6 +224,12 @@ def overall_efficiency_report(total_load_input, daily_report_input, quality_repo
     return pivoted_df
 
 def usage_efficiency_report(total_load_input, daily_report_input):
+
+    # Convert input to lower case
+    total_load_input = total_load_input.applymap(lambda x: x.lower() if type(x) == str else x)
+
+    # Convert input to lower case
+    daily_report_input = daily_report_input.applymap(lambda x: x.lower() if type(x) == str else x)
 
     total_load_input = total_load_input[["unit", "tool_no", "tool_name", "machine", "estimated_hours", "buffer_hours"]]
     total_load_input['estimated_hours'] = total_load_input['estimated_hours'].fillna(0)
