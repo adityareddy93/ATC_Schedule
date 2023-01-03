@@ -128,7 +128,7 @@ def total_load_on_systems_output(total_load_on_systems_input):
     actual_start_date_df = total_load_on_systems_output[['tool_info', 'actual_start_date']].drop_duplicates(subset = ['tool_info'])
 
     total_load_on_systems_output = total_load_on_systems_output[
-        ["tool_info", "completion_date_with_out_buffer", "completion_date_with_buffer"]]
+        ["unit", "tool_info", "completion_date_with_out_buffer", "completion_date_with_buffer"]]
 
     # End logic to give the max date of machine tools.
     total_load_on_systems_output = total_load_on_systems_output[total_load_on_systems_output.groupby('tool_info').completion_date_with_out_buffer.transform('max') == total_load_on_systems_output['completion_date_with_out_buffer']]
@@ -222,7 +222,7 @@ def accuarcy_quality_report(quality_report_input, *args):
 def overall_efficiency_report(total_load_input, daily_report_input, quality_report_input):
 
     total_load_df = forcast_tool_output(total_load_input)
-    daily_report_df = daily_report_output(total_load_input, daily_report_input, 'OVERALL_EFFICIENCY')
+    daily_report_df = usage_efficiency_report(total_load_input, daily_report_input, 'OVERALL_EFFICIENCY')
     quality_report_input = accuarcy_quality_report(quality_report_input, 'QUALITY_REPORT')
 
     total_load_df["overall_total_load_pk"] = total_load_df['unit'] + '_' + total_load_df['tool_info'] + '_' + total_load_df['machine']

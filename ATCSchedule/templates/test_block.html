@@ -73,21 +73,23 @@ To:&nbsp;&nbsp;<input  type="date"  name="end" id="myDate" value="yyyy-mm-dd">&n
 <table id="customers">
 
   <tr>
-    <th>Tool Info</th>
+    <th style="width:12%">Unit</th>
+    <th style="width:12%">Tool Info</th>
+    <th style="width:15%">Start Date</th>
     <th>Machine Completed Date (Ideal case)</th>
-    <th style="width:20%">Machine Completed Date (Ideal case week in year)</th>
+    <th>Machine Completed Date (Ideal case week in year)</th>
     <th>Machine Completed Date (With buffer)</th>
-    <th style="width:20%">Machine Completed Date (With buffer week in year)</th>
-    <th>Start Date</th>
+    <th>Machine Completed Date (With buffer week in year)</th>
   </tr>
   {% for i in d %}
   <tr>
+    <td>{{i.unit}}</td>
     <td>{{i.tool_info}}</td>
+    <td>{{i.actual_start_date}}</td>
     <td>{{i.completion_date_with_out_buffer}}</td>
     <td>{{i.completion_date_with_out_buffer_week}}</td>
     <td>{{i.completion_date_with_buffer}}</td>
     <td>{{i.completion_date_with_buffer_week}}</td>
-    <td>{{i.actual_start_date}}</td>
   </tr>
   {% endfor %}
 
