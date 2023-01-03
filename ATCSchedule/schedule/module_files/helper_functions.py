@@ -2,10 +2,14 @@ import pandas as pd
 import json
 import datetime
 
+# Number of machine models in each machine.
 a_dict_unit_1 = {'turning': 2, 'milling': 7, 'edm': 5, 'wire_cut': 6}
 a_dict_unit_2 = {'turning': 3, 'milling': 5, 'edm': 2, 'wire_cut': 0}
 a_dict_unit_3 = {'turning': 0, 'milling': 0, 'edm': 0, 'wire_cut': 0}
 a_dict_unit_4 = {'turning': 2, 'milling': 7, 'edm': 4, 'wire_cut': 4}
+UNITS = ['unit 1', 'unit 2', 'unit 3', 'unit 4']
+
+
 # Helper function to check Sunday and get Monday date
 def check_weekend(date):
     if date.weekday() == 6:
@@ -13,6 +17,7 @@ def check_weekend(date):
     else:
         return date
 
+# Function to filter dataframe with
 def return_unit_capacity(unit, machine_name):
     capacity_value = 1
     if unit == 'unit 1':
@@ -27,6 +32,35 @@ def return_unit_capacity(unit, machine_name):
         capacity_value = capacity_value
 
     return capacity_value * 24
+
+# Function to calculate actual dates for each machine
+def cal_dates(df):
+
+    if df.shape[0] > 1:
+        df.loc[0, 'actual_start_date'] = df.loc[0, 'insertion_date']
+        index = 1
+        for i in range(index, len(df)):
+            if i < index + 3:
+                df.loc[i, 'actual_start_date'] = df.loc[i - 1, 'actual_start_date'] + pd.Timedelta(days=2)
+                # Checking
+                df.loc[i, 'actual_start_date'] = check_weekend(df.loc[i, 'actual_start_date'])
+            else:
+                df.loc[i, 'actual_start_date'] = df.loc[i - 4, 'actual_start_date'] + pd.to_timedelta(
+                    df.loc[i - 4, 'total_actual_days'], unit='D') + pd.Timedelta(days=1)
+                # Checking
+                df.loc[i, 'actual_start_date'] = check_weekend(df.loc[i, 'actual_start_date'])
+                if df.loc[i, 'insertion_date'] > df.loc[i, 'actual_start_date']:
+                    df.loc[i, 'actual_start_date'] = df.loc[i, 'insertion_date']
+                    # Checking
+                    df.loc[i, 'actual_start_date'] = check_weekend(df.loc[i, 'actual_start_date'])
+                    index = i + 1
+                else:
+                    continue
+    else:
+        df["actual_start_date"] = df["insertion_date"]
+        return df
+
+    return df
 
 # Calculate forcast date for total load on systems.
 def forcast_tool_output(df):
@@ -50,8 +84,7 @@ def forcast_tool_output(df):
     # convert insert_add_dt to DateTime format
     df['insertion_date'] = pd.to_datetime(df['insertion_date'], format='%Y-%m-%d')
 
-    # Can be removed once we add this column to table
-    # df['capacity_day'] = return_unit_capacity(df.loc[i, 'unit'], df.loc[i, 'machine'])
+    # return_unit_capacity function returns capacity value.
     df["capacity_day"] = df.apply(lambda x: return_unit_capacity(x['unit'], x['machine']), axis = 1)
 
     # Total actual days
@@ -60,40 +93,25 @@ def forcast_tool_output(df):
     # Total actual days with buffer time
     df['total_actual_days_with_buffer'] = round(df['buffer_hours'] / df['capacity_day'])
 
-    # Calculating forcast end date
-    df.loc[0, 'actual_start_date'] = df.loc[0, 'insertion_date']
+    # Calculate actual dates based on unit and add them to list
+    df_lst = [cal_dates(x) for _, x in df.groupby('unit')]
 
-    index = 1
-    for i in range(index, len(df)):
-        if i < index + 3:
-            df.loc[i, 'actual_start_date'] = df.loc[i - 1, 'actual_start_date'] + pd.Timedelta(days=2)
-            # Checking
-            df.loc[i, 'actual_start_date'] = check_weekend(df.loc[i, 'actual_start_date'])
-        else:
-            df.loc[i, 'actual_start_date'] = df.loc[i - 4, 'actual_start_date'] + pd.to_timedelta(
-                df.loc[i - 4, 'total_actual_days'], unit='D') + pd.Timedelta(days=1)
-            # Checking
-            df.loc[i, 'actual_start_date'] = check_weekend(df.loc[i, 'actual_start_date'])
-            if df.loc[i, 'insertion_date'] > df.loc[i, 'actual_start_date']:
-                df.loc[i, 'actual_start_date'] = df.loc[i, 'insertion_date']
-                # Checking
-                df.loc[i, 'actual_start_date'] = check_weekend(df.loc[i, 'actual_start_date'])
-                index = i + 1
-            else:
-                continue
+    # Concatenating dataframs and removing nan values when primary key is nan
+    concat_df = pd.concat(df_lst, axis=0)
+    concat_df = concat_df.dropna(subset=["total_load_pk"])
 
     # To indentify the Sat and Sun
-    df["Weekend"] = df["actual_start_date"].dt.weekday
+    concat_df["Weekend"] = concat_df["actual_start_date"].dt.weekday
 
-    df['completion_date_with_out_buffer'] = df['actual_start_date'] + pd.to_timedelta(df['total_actual_days'], unit='D')
+    concat_df['completion_date_with_out_buffer'] = concat_df['actual_start_date'] + pd.to_timedelta(df['total_actual_days'], unit='D')
     # Considering Monday if the date is Sunday
-    df['completion_date_with_out_buffer'] = df['completion_date_with_out_buffer'].transform(lambda row : check_weekend(row))
+    concat_df['completion_date_with_out_buffer'] = concat_df['completion_date_with_out_buffer'].transform(lambda row : check_weekend(row))
 
-    df['completion_date_with_buffer'] = df['actual_start_date'] + pd.to_timedelta(df['total_actual_days_with_buffer'], unit='D')
+    concat_df['completion_date_with_buffer'] = concat_df['actual_start_date'] + pd.to_timedelta(df['total_actual_days_with_buffer'], unit='D')
     # Considering Monday if the date is Sunday
-    df['completion_date_with_buffer'] = df['completion_date_with_buffer'].transform(lambda row : check_weekend(row))
+    concat_df['completion_date_with_buffer'] = concat_df['completion_date_with_buffer'].transform(lambda row : check_weekend(row))
 
-    return df
+    return concat_df
     # total_load_on_systems_df = df[
     #     ["tool_info", "completion_date_with_out_buffer", "completion_date_with_buffer", "insertion_date"]]
     #
@@ -160,7 +178,7 @@ def daily_report_output(total_load_input, daily_report_input, *args):
     pivoted_df.columns.name=None
     pivoted_df = pivoted_df.fillna(0)
 
-    print(pivoted_df)
+    # print(pivoted_df)
     return pivoted_df
 
 def accuarcy_quality_report(quality_report_input, *args):
