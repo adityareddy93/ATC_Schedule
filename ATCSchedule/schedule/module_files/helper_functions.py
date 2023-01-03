@@ -107,6 +107,9 @@ def forcast_tool_output(df):
     # Considering Monday if the date is Sunday
     concat_df['completion_date_with_out_buffer'] = concat_df['completion_date_with_out_buffer'].transform(lambda row : check_weekend(row))
 
+    # concatenating the columns
+    # concat_df['completion_date_with_out_buffer'] = concat_df['completion_date_with_out_buffer'] + "(" + concat_df['week_number'] + ")"
+
     concat_df['completion_date_with_buffer'] = concat_df['actual_start_date'] + pd.to_timedelta(df['total_actual_days_with_buffer'], unit='D')
     # Considering Monday if the date is Sunday
     concat_df['completion_date_with_buffer'] = concat_df['completion_date_with_buffer'].transform(lambda row : check_weekend(row))
@@ -131,9 +134,13 @@ def total_load_on_systems_output(total_load_on_systems_input):
     total_load_on_systems_output = total_load_on_systems_output[total_load_on_systems_output.groupby('tool_info').completion_date_with_out_buffer.transform('max') == total_load_on_systems_output['completion_date_with_out_buffer']]
 
     total_load_on_systems_output = pd.merge(total_load_on_systems_output,actual_start_date_df,on=['tool_info'],how='inner')
+
+    total_load_on_systems_output['completion_date_with_out_buffer_week'] = total_load_on_systems_output['completion_date_with_out_buffer'].dt.week
+    total_load_on_systems_output['completion_date_with_buffer_week'] = total_load_on_systems_output['completion_date_with_out_buffer'].dt.week
+
     return total_load_on_systems_output
 
-def daily_report_output(total_load_input, daily_report_input, *args):
+def usage_efficiency_report(total_load_input, daily_report_input, *args):
 
     # Convert input to lower case
     daily_report_input = daily_report_input.applymap(lambda x: x.lower() if type(x) == 'str' else x)
@@ -241,7 +248,7 @@ def overall_efficiency_report(total_load_input, daily_report_input, quality_repo
     # print(efficiency_with_rejects_df)
     return pivoted_df
 
-def usage_efficiency_report(total_load_input, daily_report_input):
+def daily_report_output(total_load_input, daily_report_input):
 
     # Convert input to lower case
     total_load_input = total_load_input.applymap(lambda x: x.lower() if type(x) == str else x)

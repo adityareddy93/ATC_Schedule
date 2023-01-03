@@ -96,7 +96,7 @@ def input_page_req_func(request, input_form, submit_req_str, df, html):
     data = json.loads(json_records)
     print(data)
     return render(request,html ,{'d':data,'form':form,"Submit":submit})
-    
+
 @login_required(login_url='Login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 # Input page creataion for estimated hours
@@ -104,8 +104,8 @@ def estimated_hours(request):
     df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
     print(df.columns)
     return input_page_req_func(request, estimatedHoursForm, '/estimated_hours?submit=True', df, 'form.html')
-    
-    
+
+
 @login_required(login_url='Login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 # Input page creataion for estimated hours
@@ -113,8 +113,8 @@ def daily_machine_hours(request):
     df = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
     print(df)
     return input_page_req_func(request, dailyMachineHoursForm, '/daily_machine_hours?submit=True', df, 'daily_report_input.html')
-    
-    
+
+
 @login_required(login_url='Login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 # Input page creataion for quality report quality report and accuracy are same.
@@ -152,7 +152,7 @@ def output_req_func(request, df, html, *args):
             elif len(args) == 2:
                 df1 = args[0]
                 df2 = args[1]
-        
+
         # df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
 
         def convert_tuple_dict_to_dict(output):
@@ -167,23 +167,24 @@ def output_req_func(request, df, html, *args):
                     continue
                 lst.append(new_dict)
             return lst
-        
+
         # need to add try catch exception
+        #
         if (html == 'test_block.html'):
             output = total_load_on_systems_output(df)
-        if (html == 'daily_report.html'):
-            output = daily_report_output(df, df1)
+        if (html == 'usage_efficiency_report_output.html'):
+            output = usage_efficiency_report(df, df1)
         if (html == 'quality_report_output.html'):
             output = accuarcy_quality_report(df)
         if (html == 'overall_efficiency_output.html'):
             output = overall_efficiency_report(df, df1, df2)
-        if (html == 'usage_efficiency_report_output.html'):
-            output = usage_efficiency_report(df, df1)
+        if (html == 'daily_report.html'):
+            output = daily_report_output(df, df1)
 
         def convert_timestamp(item_date_object):
             if isinstance(item_date_object, (datetime.date, datetime.datetime)):
                 return item_date_object.strftime("%Y-%m-%d")
-        
+
         dict_ = output.reset_index().to_dict(orient ='records')
         if ((html == 'daily_report.html') | (html == 'usage_efficiency_report_output.html') | (html == 'overall_efficiency_output.html')):
             dict_ = convert_tuple_dict_to_dict(dict_)
@@ -193,14 +194,14 @@ def output_req_func(request, df, html, *args):
         data = json.loads(json_records)
         context = {'d': data}
         return render(request, html, context)
-        
+
 @login_required(login_url='Login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @allowed_users(allowed_roles=['admin'])
 def total_load_on_sys_output(request):
     df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
     return output_req_func(request, df, 'test_block.html')
-    
+
 
 @login_required(login_url='Login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -209,16 +210,16 @@ def daily_report_hours_output(request):
     df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
     df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
     return output_req_func(request, df, 'daily_report.html', df1)
-    
-    
+
+
 @login_required(login_url='Login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @allowed_users(allowed_roles=['admin'])
 def accuracy_output(request):
     df = pd.DataFrame(list(QualityReportInput.objects.all().values()))
     return output_req_func(request, df, 'quality_report_output.html')
-    
-    
+
+
 @login_required(login_url='Login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @allowed_users(allowed_roles=['admin'])
@@ -227,8 +228,8 @@ def overall_effiency_output(request):
     df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
     df2 = pd.DataFrame(list(QualityReportInput.objects.all().values()))
     return output_req_func(request, df, 'overall_efficiency_output.html', df1, df2)
-    
-    
+
+
 @login_required(login_url='Login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @allowed_users(allowed_roles=['admin'])
