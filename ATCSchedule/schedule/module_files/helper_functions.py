@@ -10,6 +10,8 @@ a_dict_unit_4 = {'turning': 2, 'milling': 7, 'edm': 4, 'wire_cut': 4}
 UNITS = ['unit 1', 'unit 2', 'unit 3', 'unit 4']
 
 
+
+
 # Helper function to check Sunday and get Monday date
 def check_weekend(date):
     if date.weekday() == 6:
@@ -35,9 +37,9 @@ def return_unit_capacity(unit, machine_name):
 
 # Function to calculate actual dates for each machine
 def cal_dates(df):
-
-    if df.shape[0] > 1:
-        df.loc[0, 'actual_start_date'] = df.loc[0, 'insertion_date']
+    df.loc[0, 'actual_start_date'] = df.loc[0, 'insertion_date']
+    print(df)
+    if df.shape[0] >= 4:
         index = 1
         for i in range(index, len(df)):
             if i < index + 3:
@@ -56,6 +58,8 @@ def cal_dates(df):
                     index = i + 1
                 else:
                     continue
+    elif (df.shape[0] > 1 & df.shape[0] < 4):
+        df['actual_start_date'] = df['actual_start_date'] + pd.Timedelta(days=2)
     else:
         df["actual_start_date"] = df["insertion_date"]
         return df
@@ -94,7 +98,12 @@ def forcast_tool_output(df):
     df['total_actual_days_with_buffer'] = round(df['buffer_hours'] / df['capacity_day'])
 
     # Calculate actual dates based on unit and add them to list
-    df_lst = [cal_dates(x) for _, x in df.groupby('unit')]
+    #df_lst = [cal_dates(x) for _, x in df.groupby('unit')]
+    df_lst = []
+    for _,x in df.groupby('unit'):
+        x = x.reset_index()
+        del x['index']
+        df_lst.append(cal_dates(x))
 
     # Concatenating dataframs and removing nan values when primary key is nan
     concat_df = pd.concat(df_lst, axis=0)
@@ -102,7 +111,8 @@ def forcast_tool_output(df):
 
     # To indentify the Sat and Sun
     concat_df["Weekend"] = concat_df["actual_start_date"].dt.weekday
-
+    concat_df = concat_df.reset_index()
+    del concat_df['index']
     concat_df['completion_date_with_out_buffer'] = concat_df['actual_start_date'] + pd.to_timedelta(df['total_actual_days'], unit='D')
     # Considering Monday if the date is Sunday
     concat_df['completion_date_with_out_buffer'] = concat_df['completion_date_with_out_buffer'].transform(lambda row : check_weekend(row))
