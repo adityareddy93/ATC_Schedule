@@ -11,18 +11,6 @@ class ContactForm(forms.Form):
 #category  = forms.ChoiceField(choices=[('question','Answer'),('other','Other')])
 
 
-def get_my_choices(value):
-    # you place some logic here
-    if value == "turning":
-        return turning_choice
-    if value == "turning":
-        return milling_choice
-    if value == "turning":
-        return edm_choice
-    if value == "turning":
-        return wire_cut_choice
-
-
 # create a forms
 class estimatedHoursForm(ModelForm):
 

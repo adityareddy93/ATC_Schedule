@@ -48,7 +48,7 @@ machines_choice= (
         ("SL400G","SL400G"),
         ("AL400G","AL400G"),
         ("RIVER 300 (wire drill)","RIVER 300 (wire drill)"),
-        
+
     )
 
 # Machine name choice for input table
@@ -58,7 +58,7 @@ machine_name_choice= (
         ("turning","turning"),
         ("milling","milling"),
         ("edm","edm"),
-        ("wire cut","wire cut"),
+        ("wire_cut","wire_cut"),
     )
 
 machine_name_choice_ = {
