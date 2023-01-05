@@ -22,48 +22,48 @@
       padding: 3px;
       font-family: Arial, Helvetica, sans-serif;
     }
-    
+
     input.a {
       position: absolute;
       right: 350px;
       padding: 3px;
       font-family: Arial, Helvetica, sans-serif;
     }
-    
-    
+
+
     button.sub {
       position: absolute;
       right: 280px;
       padding: 3px;
       font-family: Arial, Helvetica, sans-serif;
     }
-    
+
     #center {font-weight: bold;}
-    
+
     #customers {
       font-family: Arial, Helvetica, sans-serif;
       border-collapse: collapse;
       width: 98%;
-    
-    
+
+
     }
     #customers td {
       padding: 15px;
         border: 2px solid #f2f2f2;
         border-radius: 5px;
     }
-    
+
     #customers th {
       border: 2px solid #ddd;
       padding: 8px;
       border-radius: 5px
     }
-    
+
     #customers tr:nth-child(even){background-color: #ddd;}
-    
+
     #customers tr.sub:hover {background-color: olive;}
     #customers td.sub:hover {background-color: lightseagreen;}
-    
+
     #customers th {
       padding-top: 12px;
       padding-bottom: 12px;
@@ -74,8 +74,8 @@
       font-size: 18px;
     }
     </style>
-    
-    
+
+
     {% extends 'nav_bar.html' %}
     {% block mycontent %}
         {% if submit %}
@@ -83,7 +83,7 @@
         {% else %}
     <h2> &nbsp;&nbsp;&nbsp;Daily Report </h2>
     <center>
-    
+
       <form action = "" method="post">
             <table id="customers">
         {% csrf_token %}
@@ -110,13 +110,13 @@
             </table>
     <br>
     <button class="button" type="submit" value= "submit">Submit</button>
-    
+
     </form>
     </center>
     <br>
     <center>
     <table id="customers">
-    
+
       <tr>
         <th>unit</th>
         <th>Tool No</th>
@@ -139,18 +139,18 @@
             <td class='sub'>{{i.daily_date}}</td>
         </tr>
         {% endfor %}
-    
+
     </table>
     </center>
-	
+
 	<script>
-	
+
 	var subjectObject = {
   "unit 1": {
     "turning": ["CTX 310 eco", "NLX2000Y/500"],
     "milling": ["S 33","S 56","F3","HSM 500","MILL S 500","HSM 300","4KS"],
     "edm": ["FO 350 SP","FO 35 PSL","FO 350 Gamma","FORM 200","Workmaster Robot"],
-    "wire cut" : ["CUT 200 SP","CUT 300","CUT 20 P","CUT 30 P","DRILL 20"]
+    "wire_cut" : ["CUT 200 SP","CUT 300","CUT 20 P","CUT 30 P","DRILL 20"]
   },
   "unit 2": {
     "turning": ["SJE 10 LM", "JOBBER-XL","LT 2 LM500"],
@@ -161,7 +161,7 @@
     "turning": ["QTE-200 SG"],
     "milling": ["F5","VF-2-I","ROBODRILL (ALPHA) D21MiA","(Details not available at Unit-4)","TUN-20YA"],
 	"edm": ["F0 23 UP","AG40L"],
-	"wire cut": ["DRILL 11 EDM (wire drill)","SL400G","AL400G","RIVER 300 (wire drill)"]
+	"wire_cut": ["DRILL 11 EDM (wire drill)","SL400G","AL400G","RIVER 300 (wire drill)"]
   },
 }
 window.onload = function() {
@@ -193,7 +193,6 @@ window.onload = function() {
 
 
 </script>
-    
+
         {% endif %}
     {% endblock %}
-    

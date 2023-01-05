@@ -64,9 +64,7 @@
     <form method="POST">
       {% csrf_token %}
     <center id="center">
-    From:&nbsp;&nbsp;<input  type="date"  name="start" id="myDate" value="yyyy-mm-dd">&nbsp;&nbsp;&nbsp;&nbsp;
-    To:&nbsp;&nbsp;<input  type="date"  name="end" id="myDate" value="yyyy-mm-dd">&nbsp;&nbsp;&nbsp;&nbsp;
-    <button  onclick="myFunction()">search</button>
+
     </center>
 
     <br><br>
@@ -118,10 +116,4 @@
     </center>
     </form>
     </body>
-    <script>
-    function myFunction() {
-      var x = document.getElementById("myDate").value;
-      document.getElementById("demo").innerHTML = x;
-    }
-    </script>
     {% endblock %}

@@ -131,7 +131,7 @@ def output_req_func(request, df, html, *args):
         end_dt = request.POST.get('end')
         # df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
         output = total_load_on_systems_output(df)
-        output = output[(output['insertion_date']>=start_dt) & (output['insertion_date']<=end_dt)]
+        output = output[(output['actual_start_date']>=start_dt) & (output['actual_start_date']<=end_dt)]
         def convert_timestamp(item_date_object):
             if isinstance(item_date_object, (datetime.date, datetime.datetime)):
                 return item_date_object.strftime("%Y-%m-%d")

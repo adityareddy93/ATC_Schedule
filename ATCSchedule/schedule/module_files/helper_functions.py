@@ -38,7 +38,6 @@ def return_unit_capacity(unit, machine_name):
 # Function to calculate actual dates for each machine
 def cal_dates(df):
     df.loc[0, 'actual_start_date'] = df.loc[0, 'insertion_date']
-    print(df)
     if df.shape[0] >= 4:
         index = 1
         for i in range(index, len(df)):
@@ -68,7 +67,6 @@ def cal_dates(df):
 
 # Calculate forcast date for total load on systems.
 def forcast_tool_output(df):
-    # print(df.dtypes)
     df = df.applymap(lambda x: x.lower() if type(x) == str else x)
 
     df['tool_info'] = df['tool_no'] + " " + df['tool_name']
@@ -79,7 +77,6 @@ def forcast_tool_output(df):
     # Buffer hours wiil be in percentage converting percentage to values
     df['buffer_hours'] = df['estimated_hours'] + (df['estimated_hours']/df['buffer_hours'])
 
-    # print(df)
     df = df.groupby(["unit", "tool_info", "machine", "insertion_date"], sort=False)[['estimated_hours', 'buffer_hours']].sum().reset_index()
 
     # Creating a primary key for total load on systems table (1st table)
@@ -195,7 +192,6 @@ def usage_efficiency_report(total_load_input, daily_report_input, *args):
     pivoted_df.columns.name=None
     pivoted_df = pivoted_df.fillna(0)
 
-    # print(pivoted_df)
     return pivoted_df
 
 def accuarcy_quality_report(quality_report_input, *args):
@@ -203,11 +199,11 @@ def accuarcy_quality_report(quality_report_input, *args):
     # Convert input to lower case
     quality_report_input = quality_report_input.applymap(lambda x: x.lower() if type(x) == str else x)
     quality_report_input = quality_report_input.drop('id', axis=1)
-    quality_report_input = quality_report_input.melt(id_vars=["unit", "tool_no", "tool_name", "insert", "num_of_rejects", "insertion_date"],
-        var_name="machine",
-        value_name="accuracy")
+    # quality_report_input = quality_report_input.melt(id_vars=["unit", "tool_no", "tool_name", "insert", "num_of_rejects", "insertion_date"],
+    #     var_name="machine",
+    #     value_name="accuracy")
 
-    quality_report_input['accuracy'] = quality_report_input['accuracy'].astype(str).astype(int)
+    # quality_report_input['accuracy'] = quality_report_input['accuracy'].astype(str).astype(int)
 
     quality_report_input['tool_info'] = quality_report_input['tool_no'] + " " + quality_report_input['tool_name']
     quality_report_input['estimated_cost'] = quality_report_input['num_of_rejects'] * 2000
@@ -215,16 +211,21 @@ def accuarcy_quality_report(quality_report_input, *args):
     if (args):
         for str_arg in args:
             if str_arg == 'QUALITY_REPORT':
-                dff = quality_report_input.groupby(["unit", "tool_info", "machine"], sort=False)[['accuracy', 'num_of_rejects', 'estimated_cost']].sum().reset_index()
-                return dff[["tool_info", "machine", "accuracy", "num_of_rejects", "estimated_cost"]]
+                quality_report_input = quality_report_input.melt(id_vars=["unit", "tool_info", "insert", "num_of_rejects", "estimated_cost"],
+                    var_name="machine",
+                    value_name="accuracy")
+
+                # quality_report_input['accuracy'] = quality_report_input['accuracy'].astype(str).astype(int)
+                dff = quality_report_input.groupby(["unit", "tool_info", "machine"], sort=False)[['num_of_rejects', 'estimated_cost']].sum().reset_index()
+                return dff[["tool_info", "machine", "num_of_rejects"]]
             else:
                 break
-    dff = quality_report_input.groupby(["unit", "tool_info"], sort=False)[['accuracy', 'num_of_rejects', 'estimated_cost']].sum().reset_index()
+    dff = quality_report_input.groupby(["unit", "tool_info"], sort=False)[['num_of_rejects', 'estimated_cost']].sum().reset_index()
 
     # dff['quality_hours_pk'] = dff['unit'] + "_" + dff['tool_info'] + "_" + dff['machine']
 
     dff = dff[
-        ["tool_info", "accuracy", "num_of_rejects", "estimated_cost"]]
+        ["unit", "tool_info", "num_of_rejects", "estimated_cost"]]
 
 
     return dff
@@ -247,15 +248,13 @@ def overall_efficiency_report(total_load_input, daily_report_input, quality_repo
 
     required_combined_df = combined_df[["tool_info", "machine", "overall_efficiency"]]
 
-    # print(quality_report_input)
-    accuracy_df = quality_report_input[["tool_info", "machine", "num_of_rejects"]]
-    efficiency_with_rejects_df = pd.merge(required_combined_df, accuracy_df, how='inner', on=["tool_info", "machine"])
+    efficiency_with_rejects_df = pd.merge(required_combined_df, quality_report_input, how='inner', on=["tool_info", "machine"])
 
     efficiency_with_rejects_df = efficiency_with_rejects_df[["tool_info", "machine", "overall_efficiency", "num_of_rejects"]]
 
     pivoted_df = efficiency_with_rejects_df.pivot_table(index='tool_info', columns='machine', values=["overall_efficiency", "num_of_rejects"]).reset_index()
     pivoted_df.columns.name=None
-    # print(efficiency_with_rejects_df)
+
     return pivoted_df
 
 def daily_report_output(total_load_input, daily_report_input):

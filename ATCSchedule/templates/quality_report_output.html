@@ -68,15 +68,15 @@
     <table id="customers">
 
       <tr>
+        <th>Unit</th>
         <th>Tool Info</th>
-        <th>Accuracy(µm)</th>
         <th>No. of Rejects</th>
         <th>Est. Cost</th>
       </tr>
       {% for i in d %}
       <tr>
+        <td>{{i.unit}}</td>
         <td>{{i.tool_info}}</td>
-        <td>{{i.accuracy}}</td>
         <td>{{i.num_of_rejects}}</td>
         <td>{{i.estimated_cost}}</td>
       </tr>
