@@ -3,7 +3,7 @@ import json
 import datetime
 
 # Number of machine models in each machine.
-a_dict_unit_1 = {'turning': 2, 'milling': 7, 'edm': 5, 'wire_cut': 6}
+a_dict_unit_1 = {'turning': 2, 'milling': 8, 'edm': 5, 'wire_cut': 6}
 a_dict_unit_2 = {'turning': 3, 'milling': 5, 'edm': 2, 'wire_cut': 0}
 a_dict_unit_3 = {'turning': 0, 'milling': 0, 'edm': 0, 'wire_cut': 0}
 a_dict_unit_4 = {'turning': 2, 'milling': 7, 'edm': 4, 'wire_cut': 4}
