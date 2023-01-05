@@ -67,6 +67,7 @@ def cal_dates(df):
 
 # Calculate forcast date for total load on systems.
 def forcast_tool_output(df):
+    df = df.drop_duplicates(['unit', "tool_no", "tool_name", "machine"])
     df = df.applymap(lambda x: x.lower() if type(x) == str else x)
 
     df['tool_info'] = df['tool_no'] + " " + df['tool_name']
@@ -149,6 +150,7 @@ def total_load_on_systems_output(total_load_on_systems_input):
 
 def usage_efficiency_report(total_load_input, daily_report_input, *args):
 
+    daily_report_input = daily_report_input.drop_duplicates(['unit', "tool_no", "tool_name", "machine"])
     # Convert input to lower case
     daily_report_input = daily_report_input.applymap(lambda x: x.lower() if type(x) == 'str' else x)
 
@@ -188,14 +190,17 @@ def usage_efficiency_report(total_load_input, daily_report_input, *args):
     combined_df = combined_df[
         ["tool_info", "machine", "completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]]
 
+
     pivoted_df = combined_df.pivot(index='tool_info', columns='machine', values=["completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]).reset_index()
     pivoted_df.columns.name=None
-    pivoted_df = pivoted_df.fillna(0)
 
+    # To remove the null values
+    pivoted_df = pivoted_df.fillna(0)
     return pivoted_df
 
 def accuarcy_quality_report(quality_report_input, *args):
 
+    quality_report_input = quality_report_input.drop_duplicates(['unit', "tool_no", "tool_name"])
     # Convert input to lower case
     quality_report_input = quality_report_input.applymap(lambda x: x.lower() if type(x) == str else x)
     quality_report_input = quality_report_input.drop('id', axis=1)
@@ -259,9 +264,11 @@ def overall_efficiency_report(total_load_input, daily_report_input, quality_repo
 
 def daily_report_output(total_load_input, daily_report_input):
 
+    total_load_input = total_load_input.drop_duplicates(['unit', "tool_no", "tool_name", "machine"])
     # Convert input to lower case
     total_load_input = total_load_input.applymap(lambda x: x.lower() if type(x) == str else x)
 
+    daily_report_input = daily_report_input.drop_duplicates(['unit', "tool_no", "tool_name", "machine"])
     # Convert input to lower case
     daily_report_input = daily_report_input.applymap(lambda x: x.lower() if type(x) == str else x)
 

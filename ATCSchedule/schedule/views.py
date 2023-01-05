@@ -21,7 +21,7 @@ def registerPage(request):
     if request.method == 'POST':
         form = CreateRegisterForm(request.POST)
         if form.is_valid():
-            print(form)
+            # print(form)
             form.save()
             user = form.cleaned_data.get('username')
             messages.success(request,"Account was created for {}".format(user))
@@ -65,18 +65,18 @@ def base(request):
 def input_page_req_func(request, input_form, submit_req_str, df, html):
     submit = False
     form = input_form
-    print("check1")
+    # print("check1")
     if request.method == "POST":
-        print("check 2")
+        # print("check 2")
         form = input_form(request.POST)
         #print(form.errors)
-        print("-----------------------------------------------------------")
+        # print("-----------------------------------------------------------")
         print(form)
-        print("-----------------------------------------------------------")
+        # print("-----------------------------------------------------------")
         if form.is_valid():
-            print("----------------------------------------------------------------")
-            print("success")
-            print("----------------------------------------------------------------")
+            # print("----------------------------------------------------------------")
+            # print("success")
+            # print("----------------------------------------------------------------")
             form.save()
             return HttpResponseRedirect(submit_req_str)
         else:
@@ -85,7 +85,6 @@ def input_page_req_func(request, input_form, submit_req_str, df, html):
             if 'submit' in request.GET:
                 submit=True
     # df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
-    print(df)
     df = df.loc[::-1]
     def convert_timestamp(item_date_object):
         if isinstance(item_date_object, (datetime.date, datetime.datetime)):
@@ -94,7 +93,6 @@ def input_page_req_func(request, input_form, submit_req_str, df, html):
     json_records = json.dumps(dict_,default=convert_timestamp)
     data = []
     data = json.loads(json_records)
-    print(data)
     return render(request,html ,{'d':data,'form':form,"Submit":submit})
 
 @login_required(login_url='Login')
@@ -102,7 +100,6 @@ def input_page_req_func(request, input_form, submit_req_str, df, html):
 # Input page creataion for estimated hours
 def estimated_hours(request):
     df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
-    print(df.columns)
     return input_page_req_func(request, estimatedHoursForm, '/estimated_hours?submit=True', df, 'form.html')
 
 
@@ -111,7 +108,6 @@ def estimated_hours(request):
 # Input page creataion for estimated hours
 def daily_machine_hours(request):
     df = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
-    print(df)
     return input_page_req_func(request, dailyMachineHoursForm, '/daily_machine_hours?submit=True', df, 'daily_report_input.html')
 
 
@@ -155,6 +151,7 @@ def output_req_func(request, df, html, *args):
 
         # df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
 
+        # To convert pivoted tuple to dictionary
         def convert_tuple_dict_to_dict(output):
             lst = []
             for val in output:
@@ -188,7 +185,7 @@ def output_req_func(request, df, html, *args):
         dict_ = output.reset_index().to_dict(orient ='records')
         if ((html == 'daily_report.html') | (html == 'usage_efficiency_report_output.html') | (html == 'overall_efficiency_output.html')):
             dict_ = convert_tuple_dict_to_dict(dict_)
-        # new_dict_ = convert_tuple_dict_to_dict(dict_)
+
         json_records = json.dumps(dict_, default=convert_timestamp)
         data = []
         data = json.loads(json_records)
