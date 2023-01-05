@@ -10,7 +10,12 @@ a_dict_unit_4 = {'turning': 2, 'milling': 7, 'edm': 4, 'wire_cut': 4}
 UNITS = ['unit 1', 'unit 2', 'unit 3', 'unit 4']
 
 
-
+def return_empty_df(df):
+    isempty = df.empty
+    if (isempty):
+        return pd.DataFrame()
+    else:
+        return df
 
 # Helper function to check Sunday and get Monday date
 def check_weekend(date):
@@ -67,6 +72,9 @@ def cal_dates(df):
 
 # Calculate forcast date for total load on systems.
 def forcast_tool_output(df):
+    # if (!(df)) {
+    #     return pd.DataFrame()
+    # }
     df = df.drop_duplicates(['unit', "tool_no", "tool_name", "machine"])
     df = df.applymap(lambda x: x.lower() if type(x) == str else x)
 
@@ -130,6 +138,9 @@ def forcast_tool_output(df):
 
 # Replace with above function in views.py
 def total_load_on_systems_output(total_load_on_systems_input):
+    isempty = total_load_on_systems_input.empty
+    if (isempty):
+        return pd.DataFrame()
 
     total_load_on_systems_output = forcast_tool_output(total_load_on_systems_input)
 
@@ -143,12 +154,15 @@ def total_load_on_systems_output(total_load_on_systems_input):
 
     total_load_on_systems_output = pd.merge(total_load_on_systems_output,actual_start_date_df,on=['tool_info'],how='inner')
 
-    total_load_on_systems_output['completion_date_with_out_buffer_week'] = total_load_on_systems_output['completion_date_with_out_buffer'].dt.week
-    total_load_on_systems_output['completion_date_with_buffer_week'] = total_load_on_systems_output['completion_date_with_out_buffer'].dt.week
+    total_load_on_systems_output['completion_date_with_out_buffer_week'] = total_load_on_systems_output['completion_date_with_out_buffer'].dt.isocalendar().week
+    total_load_on_systems_output['completion_date_with_buffer_week'] = total_load_on_systems_output['completion_date_with_out_buffer'].dt.isocalendar().week
 
     return total_load_on_systems_output
 
 def usage_efficiency_report(total_load_input, daily_report_input, *args):
+
+    if ((total_load_input.empty) or (daily_report_input.empty)):
+        return pd.DataFrame()
 
     daily_report_input = daily_report_input.drop_duplicates(['unit', "tool_no", "tool_name", "machine"])
     # Convert input to lower case
@@ -199,6 +213,10 @@ def usage_efficiency_report(total_load_input, daily_report_input, *args):
     return pivoted_df
 
 def accuarcy_quality_report(quality_report_input, *args):
+    # quality_report_input = return_empty_df(quality_report_input)
+    isempty = quality_report_input.empty
+    if (isempty):
+        return pd.DataFrame()
 
     quality_report_input = quality_report_input.drop_duplicates(['unit', "tool_no", "tool_name"])
     # Convert input to lower case
@@ -237,6 +255,9 @@ def accuarcy_quality_report(quality_report_input, *args):
 
 def overall_efficiency_report(total_load_input, daily_report_input, quality_report_input):
 
+    if ((total_load_input.empty) or (daily_report_input.empty) or (quality_report_input.empty)):
+        return pd.DataFrame()
+
     total_load_df = forcast_tool_output(total_load_input)
     daily_report_df = usage_efficiency_report(total_load_input, daily_report_input, 'OVERALL_EFFICIENCY')
     quality_report_input = accuarcy_quality_report(quality_report_input, 'QUALITY_REPORT')
@@ -263,6 +284,9 @@ def overall_efficiency_report(total_load_input, daily_report_input, quality_repo
     return pivoted_df
 
 def daily_report_output(total_load_input, daily_report_input):
+
+    if ((total_load_input.empty) or (daily_report_input.empty)):
+        return pd.DataFrame()
 
     total_load_input = total_load_input.drop_duplicates(['unit', "tool_no", "tool_name", "machine"])
     # Convert input to lower case

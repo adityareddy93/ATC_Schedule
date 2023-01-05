@@ -98,6 +98,7 @@ def input_page_req_func(request, input_form, submit_req_str, df, html):
 @login_required(login_url='Login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 # Input page creataion for estimated hours
+
 def estimated_hours(request):
     df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
     return input_page_req_func(request, estimatedHoursForm, '/estimated_hours?submit=True', df, 'form.html')
@@ -213,6 +214,7 @@ def daily_report_hours_output(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @allowed_users(allowed_roles=['admin'])
 def accuracy_output(request):
+    # print(QualityReportInput.objects.all())
     df = pd.DataFrame(list(QualityReportInput.objects.all().values()))
     return output_req_func(request, df, 'quality_report_output.html')
 
