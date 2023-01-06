@@ -24,6 +24,9 @@ admin.site.site_header = "ATC Portal"
 admin.site.site_title = "ATC Admin Portal"
 admin.site.index_title = "Welcome to Amritha Tool Craft portal"
 
+
+
+
 urlpatterns = [
     path(r'admin/', admin.site.urls),
     path(r'', base,name = 'base'),
@@ -39,3 +42,9 @@ urlpatterns = [
     path(r'logout/',logoutpage,name='logout'),
     path(r'register/',registerPage,name='Register'),
 ]
+
+
+handler400 = 'schedule.views.handler400'
+handler403 = 'schedule.views.handler403'
+handler404 = 'schedule.views.handler404'
+handler500 = 'schedule.views.handler500'
