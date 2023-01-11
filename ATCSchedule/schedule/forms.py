@@ -64,3 +64,6 @@ class CreateRegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username','email','password1','password2']
+
+class UploadFile(forms.Form):
+    file = forms.FileField()

@@ -58,3 +58,4 @@ class QualityReportInput(models.Model):
 
     def __str__(self):
         return str(self.insertion_date)+' '+ self.tool_name
+

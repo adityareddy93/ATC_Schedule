@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
 from django.contrib import messages
-from .forms import ContactForm, estimatedHoursForm, dailyMachineHoursForm, accuracyInputForm, CreateRegisterForm
+from .forms import ContactForm, estimatedHoursForm, dailyMachineHoursForm, accuracyInputForm, CreateRegisterForm, UploadFile
 from .models import  TotalLoadOnSystemsInput, DailyMachineHoursInput, QualityReportInput
 from .module_files.helper_functions import daily_report_output, total_load_on_systems_output, accuarcy_quality_report, overall_efficiency_report, usage_efficiency_report
 from django.http import HttpResponseRedirect
@@ -9,10 +9,33 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control
 from .decorator_ import userauthentication,allowed_users
+from django.db.models import Min
 from django.db import connection
 import pandas as pd
 import json
 import datetime
+
+def handle_csv(file):
+    df = pd.read_csv(file,delimiter=',')
+    print(df.columns)
+    df['Insertion date'] = pd.to_datetime(df['Insertion date'])
+    df['Insertion date'] = df['Insertion date'].dt.strftime('%Y-%m-%d')
+    csv_list = [list(row) for row in df.values]
+
+    for i in csv_list:
+        TotalLoadOnSystemsInput.objects.create(
+            unit = i[0],
+            tool_no = i[1],
+            tool_name= i[2],
+            insert= i[3],
+            num_of_inserts= i[4],
+            machine= i[5],
+            estimated_hours= i[6],
+            buffer_hours= i[7],
+            insertion_date= i[8],
+        )
+    
+
 
 # Create your views here.
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -65,25 +88,27 @@ def base(request):
 def input_page_req_func(request, input_form, submit_req_str, df, html):
     submit = False
     form = input_form
-    # print("check1")
+
     if request.method == "POST":
-        # print("check 2")
         form = input_form(request.POST)
-        #print(form.errors)
-        # print("-----------------------------------------------------------")
-        print(form)
-        # print("-----------------------------------------------------------")
-        if form.is_valid():
-            # print("----------------------------------------------------------------")
-            # print("success")
-            # print("----------------------------------------------------------------")
-            form.save()
+        form_file = UploadFile(request.POST)
+        if request.method=='POST' and 'file' in request.POST:
+            csv_file = request.FILES['file']
+            handle_csv(csv_file)
+            min_id = TotalLoadOnSystemsInput.objects.values('unit', 'tool_no','tool_name','insert','machine').annotate(minid=Min('id'))
+            min_ids = [obj['minid'] for obj in min_id]
+            TotalLoadOnSystemsInput.objects.exclude(id__in=min_ids).delete()
+
             return HttpResponseRedirect(submit_req_str)
         else:
-            form = input_form
-            print("second part")
-            if 'submit' in request.GET:
-                submit=True
+            if form.is_valid():
+                form.save()
+                return HttpResponseRedirect(submit_req_str)
+            else:
+                form = input_form
+                print("second part")
+                if 'submit' in request.GET:
+                    submit=True
     # df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
     df = df.loc[::-1]
     def convert_timestamp(item_date_object):
@@ -236,7 +261,23 @@ def usage_efficiency_output(request):
     df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
     df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
     return output_req_func(request, df, 'usage_efficiency_report_output.html', df1)
-    
+
+def csv_upload(request):
+    prompt = {order:"text"}
+    if request.method== "GET":
+        return render(request,'index.html',prompt)
+    csv_file = request.FILES['file']
+
+    if not csv_file.name.endswith('.csv'):
+        messages.error(request,"This is not a csv file")
+    data_set = csv_file.read().decode('UTF-8')
+    io_string = io.StringtIO(data_set)
+    next(io_string)
+    for column in csv.reader(io_string,delimiter=',',quotechar='|'):
+        _, created = contact.objects.update_or_create()
+
+    return True
+
     
 def handler400(request,exception):
     return render(request,"handler400.html",status=400)
