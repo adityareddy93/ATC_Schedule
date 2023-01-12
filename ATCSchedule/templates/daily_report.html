@@ -1,120 +1,120 @@
 <style>
 
-    input.b {
-      position: absolute;
-      right: 500px;
-      padding: 3px;
-      font-family: Arial, Helvetica, sans-serif;
-    }
+  input.b {
+    position: absolute;
+    right: 500px;
+    padding: 3px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
 
-    input.a {
-      position: absolute;
-      right: 350px;
-      padding: 3px;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-
-    button.sub {
-      position: absolute;
-      right: 280px;
-      padding: 3px;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    #customers {
-      font-family: Arial, Helvetica, sans-serif;
-      border-collapse: collapse;
-      width: 90%;
+  input.a {
+    position: absolute;
+    right: 350px;
+    padding: 3px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
 
 
-    }
+  button.sub {
+    position: absolute;
+    right: 280px;
+    padding: 3px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
 
-    #customers td, #customers th {
-      border: 2px solid #ddd;
-      padding: 8px;
-      border-radius: 5px
+  #customers {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 90%;
 
-    }
 
-    #customers tr:nth-child(even){background-color: #f2f2f2;}
+  }
 
-    #customers tr:hover {background-color: lightblue;}
+  #customers td, #customers th {
+    border: 2px solid #ddd;
+    padding: 8px;
+    border-radius: 5px
 
-    #customers th {
-      padding-top: 12px;
-      padding-bottom: 12px;
-      text-align: left;
-      background-color: #417690;
-      color: white;
-      font-weight: bold;
-      font-size: 18px;
-      text-align: center;
+  }
 
-    }
+  #customers tr:nth-child(even){background-color: #f2f2f2;}
 
-    </style>
-    <body>
-    {% extends 'nav_bar.html' %}
-    {% block mycontent %}
-    <h2>Daily Report</h2>
-    <form method="POST">
-      {% csrf_token %}
+  #customers tr:hover {background-color: lightblue;}
 
-    <br><br>
+  #customers th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #417690;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: center;
 
-    <center>
+  }
 
-    <table id="customers">
-      <tr>
-        <th colspan="1">Tool Information</th>
-        <th colspan="4">Turning</th>
-        <th colspan="4">Milling</th>
-        <th colspan="4">EDM</th>
-        <th colspan="4">Wire Cut</th>
-      </tr>
-      <tr>
-        <th></th>
-        <th>Work done Today</th>
-        <th>balance hours as on today</th>
-        <th>Expected ideal hours as on today</th>
-        <th>Expected completion hours as on today(Buffer time)</th>
-        <th>Work done Today</th>
-        <th>balance hours as on today</th>
-        <th>Expected ideal hours as on today</th>
-        <th>Expected completion hours as on today(Buffer time)</th>
-        <th>Work done Today</th>
-        <th>balance hours as on today</th>
-        <th>Expected ideal hours as on today</th>
-        <th>Expected completion hours as on today(Buffer time)</th>
-        <th>Work done Today</th>
-        <th>balance hours as on today</th>
-        <th>Expected ideal hours as on today</th>
-        <th>Expected completion hours as on today(Buffer time)</th>
-      </tr>
-      {% for i in d %}
-      <tr>
-        <td>{{i.tool_info_}}</td>
-        <td>{{i.num_of_hours_turning}}</td>
-        <td>{{i.balance_hours_as_on_today_turning}}</td>
-        <td>{{i.estimated_hours_turning}}</td>
-        <td>{{i.buffer_hours_turning}}</td>
-        <td>{{i.num_of_hours_milling}}</td>
-        <td>{{i.balance_hours_as_on_today_milling}}</td>
-        <td>{{i.estimated_hours_milling}}</td>
-        <td>{{i.buffer_hours_milling}}</td>
-        <td>{{i.num_of_hours_edm}}</td>
-        <td>{{i.balance_hours_as_on_today_edm}}</td>
-        <td>{{i.estimated_hours_edm}}</td>
-        <td>{{i.buffer_hours_edm}}</td>
-        <td>{{i.num_of_hours_wire_cut}}</td>
-        <td>{{i.balance_hours_as_on_today_wire_cut}}</td>
-        <td>{{i.estimated_hours_wire_cut}}</td>
-        <td>{{i.buffer_hours_wire_cut}}</td>
+  </style>
+  <body>
+  {% extends 'nav_bar.html' %}
+  {% block mycontent %}
+  <h2>Daily Report</h2>
+  <form method="POST">
+    {% csrf_token %}
+
+  <br><br>
+
+  <center>
+
+  <table id="customers">
+    <tr>
+      <th colspan="1">Tool Information</th>
+      <th colspan="4">Turning</th>
+      <th colspan="4">Milling</th>
+      <th colspan="4">EDM</th>
+      <th colspan="4">Wire Cut</th>
     </tr>
-    {% endfor %}
-    </table>
-    </center>
-    </form>
-    </body>
-    {% endblock %}
+    <tr>
+      <th></th>
+      <th>Work done Today</th>
+      <th>balance hours as on today</th>
+      <th>Expected balance hours as on today</th>
+      <th>Expected balance hours as on today(Buffer time)</th>
+      <th>Work done Today</th>
+      <th>balance hours as on today</th>
+      <th>Expected balance hours as on today</th>
+      <th>Expected balance hours as on today(Buffer time)</th>
+      <th>Work done Today</th>
+      <th>balance hours as on today</th>
+      <th>Expected balance hours as on today</th>
+      <th>Expected balance hours as on today(Buffer time)</th>
+      <th>Work done Today</th>
+      <th>balance hours as on today</th>
+      <th>Expected balance hours as on today</th>
+      <th>Expected balance hours as on today(Buffer time)</th>
+    </tr>
+    {% for i in d %}
+    <tr>
+      <td>{{i.tool_info_}}</td>
+      <td>{{i.num_of_hours_turning}}</td>
+      <td>{{i.balance_hours_as_on_today_turning}}</td>
+      <td>{{i.expected_hours_as_on_today_turning}}</td>
+      <td>{{i.expected_hours_as_on_today_with_buffer_turning}}</td>
+      <td>{{i.num_of_hours_milling}}</td>
+      <td>{{i.balance_hours_as_on_today_milling}}</td>
+      <td>{{i.expected_hours_as_on_today_milling}}</td>
+      <td>{{i.expected_hours_as_on_today_with_buffer_milling}}</td>
+      <td>{{i.num_of_hours_edm}}</td>
+      <td>{{i.balance_hours_as_on_today_edm}}</td>
+      <td>{{i.expected_hours_as_on_today_edm}}</td>
+      <td>{{i.expected_hours_as_on_today_with_buffer_edm}}</td>
+      <td>{{i.num_of_hours_wire_cut}}</td>
+      <td>{{i.balance_hours_as_on_today_wire_cut}}</td>
+      <td>{{i.expected_hours_as_on_today_wire_cut}}</td>
+      <td>{{i.expected_hours_as_on_today_with_buffer_wire_cut}}</td>
+  </tr>
+  {% endfor %}
+  </table>
+  </center>
+  </form>
+  </body>
+  {% endblock %}

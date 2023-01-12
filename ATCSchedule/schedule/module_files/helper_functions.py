@@ -75,7 +75,10 @@ def forcast_tool_output(df):
     # if (!(df)) {
     #     return pd.DataFrame()
     # }
-    df = df.drop_duplicates(['unit', "tool_no", "tool_name", "machine"])
+    df = df.drop_duplicates(['unit', "tool_no", "tool_name", "machine", "insert"])
+
+    df["tool_name"] = df['tool_name'].str.lower()
+    df["insert"] = df['insert'].str.lower()
     df = df.applymap(lambda x: x.lower() if type(x) == str else x)
 
     df['tool_info'] = df['tool_no'] + " " + df['tool_name']
@@ -84,9 +87,10 @@ def forcast_tool_output(df):
     df['buffer_hours'] = df['buffer_hours'].fillna(df['estimated_hours'])
 
     # Buffer hours wiil be in percentage converting percentage to values
-    df['buffer_hours'] = df['estimated_hours'] + (df['estimated_hours']/df['buffer_hours'])
+    df['buffer_hours'] = df['estimated_hours'] + ((df['estimated_hours']*df['buffer_hours'])/100)
 
-    df = df.groupby(["unit", "tool_info", "machine", "insertion_date"], sort=False)[['estimated_hours', 'buffer_hours']].sum().reset_index()
+
+    df = df.groupby(["unit", "tool_info", "machine", "insertion_date", "insert"], sort=False)[['estimated_hours', 'buffer_hours']].sum().reset_index()
 
     # Creating a primary key for total load on systems table (1st table)
     df['total_load_pk'] = df['unit'] + '_' + df['tool_info'] + '_' + df['machine']
@@ -97,6 +101,7 @@ def forcast_tool_output(df):
     # return_unit_capacity function returns capacity value.
     df["capacity_day"] = df.apply(lambda x: return_unit_capacity(x['unit'], x['machine']), axis = 1)
 
+    # print(df["capacity_day"])
     # Total actual days
     df['total_actual_days'] = round(df['estimated_hours'] / df['capacity_day'])
 
@@ -114,7 +119,6 @@ def forcast_tool_output(df):
     # Concatenating dataframs and removing nan values when primary key is nan
     concat_df = pd.concat(df_lst, axis=0)
     concat_df = concat_df.dropna(subset=["total_load_pk"])
-
     # To indentify the Sat and Sun
     concat_df["Weekend"] = concat_df["actual_start_date"].dt.weekday
     concat_df = concat_df.reset_index()
@@ -130,6 +134,7 @@ def forcast_tool_output(df):
     # Considering Monday if the date is Sunday
     concat_df['completion_date_with_buffer'] = concat_df['completion_date_with_buffer'].transform(lambda row : check_weekend(row))
 
+    print(concat_df.columns)
     return concat_df
     # total_load_on_systems_df = df[
     #     ["tool_info", "completion_date_with_out_buffer", "completion_date_with_buffer", "insertion_date"]]
@@ -160,57 +165,63 @@ def total_load_on_systems_output(total_load_on_systems_input):
     return total_load_on_systems_output
 
 def usage_efficiency_report(total_load_input, daily_report_input, *args):
-
+    
     if ((total_load_input.empty) or (daily_report_input.empty)):
         return pd.DataFrame()
 
-    daily_report_input = daily_report_input.drop_duplicates(['unit', "tool_no", "tool_name", "machine"])
-    # Convert input to lower case
-    daily_report_input = daily_report_input.applymap(lambda x: x.lower() if type(x) == 'str' else x)
-
     # daily_hours_df['tool_info'] = daily_hours_df['tool_no'] + daily_hours_df['tool_name']
-    daily_report_input.melt(id_vars=["unit", "tool_no", "tool_name", "insert", "num_of_hours", "daily_date"],
-        var_name="machine",
-        value_name="accuracy")
+    daily_report_input["tool_name"] = daily_report_input['tool_name'].str.lower()
+    daily_report_input["insert"] = daily_report_input['insert'].str.lower()
+    daily_report_input["machine_name"] = daily_report_input['machine_name'].str.lower()
 
+    # print(daily_report_input)
     daily_report_input['tool_info'] = daily_report_input['tool_no'] + " " + daily_report_input['tool_name']
-    dff = daily_report_input.groupby(["unit", "tool_info", "machine", "insert"], sort=False).num_of_hours.sum().reset_index()
+    dff = daily_report_input.groupby(["unit", "tool_info", "machine"], sort=False).num_of_hours.sum().reset_index()
 
     # replace insert add date with inserts
     dff['daily_hours_pk'] = dff['unit'] + "_" + dff['tool_info'] + "_" + dff['machine']
 
     total_load_df = forcast_tool_output(total_load_input)
 
-    total_load_df = total_load_df[
-        ["total_load_pk", "completion_date_with_out_buffer", "estimated_hours", "capacity_day", "buffer_hours"]]
+    total_load_dates_df = total_load_df[["total_load_pk", "completion_date_with_out_buffer"]]
 
-    combined_df = pd.merge(total_load_df, dff, how='inner', left_on="total_load_pk", right_on="daily_hours_pk")
+    grouped_total_dff = total_load_df.groupby(["total_load_pk", "machine"], sort=False)[['estimated_hours', 'buffer_hours']].sum().reset_index()
+    # total_load_df = total_load_df[
+    #     ["total_load_pk", "completion_date_with_out_buffer", "estimated_hours", "buffer_hours"]]
+
+    total_combined = pd.merge(grouped_total_dff, total_load_dates_df, how='inner', left_on="total_load_pk", right_on="total_load_pk")
+    
+    combined_df = pd.merge(total_combined, dff, how='inner', left_on="total_load_pk", right_on="daily_hours_pk")
+
+     # return_unit_capacity function returns capacity value.
+    combined_df["capacity_day"] = combined_df.apply(lambda x: return_unit_capacity(x['unit'], x['machine_x']), axis = 1)
 
     combined_df["daily_hours_diff"] = combined_df["capacity_day"] - combined_df["num_of_hours"]
 
     combined_df["daily_hours_diff_in_days"] = round(combined_df["daily_hours_diff"] / combined_df["capacity_day"])
 
-    # combined_df = combined_df.groupby('tool_info').agg({'daily_hours_diff': 'sum', 'completion_date_with_out_buffer': 'first', 'estimated_hours': 'first'})
-
     combined_df['completion_date_with_out_buffer'] = combined_df['completion_date_with_out_buffer'] + pd.to_timedelta(combined_df['daily_hours_diff_in_days'], unit='D')
 
+    combined_df = combined_df.rename(columns={'machine_x': 'machine'})
     if (args):
         for str in args:
             if str == 'OVERALL_EFFICIENCY':
                 return combined_df[["daily_hours_pk", "tool_info", "machine", "daily_hours_diff_in_days"]]
             else:
                 break
-
+    
     combined_df = combined_df[
         ["tool_info", "machine", "completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]]
 
-
+    combined_df = combined_df[combined_df.groupby('tool_info').completion_date_with_out_buffer.transform('max') == combined_df['completion_date_with_out_buffer']]
+    
     pivoted_df = combined_df.pivot(index='tool_info', columns='machine', values=["completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]).reset_index()
     pivoted_df.columns.name=None
 
     # To remove the null values
-    pivoted_df = pivoted_df.fillna(0)
+    # pivoted_df = pivoted_df.fillna(0)
     return pivoted_df
+    # return pivoted_df
 
 def accuarcy_quality_report(quality_report_input, *args):
     # quality_report_input = return_empty_df(quality_report_input)
@@ -262,16 +273,19 @@ def overall_efficiency_report(total_load_input, daily_report_input, quality_repo
     daily_report_df = usage_efficiency_report(total_load_input, daily_report_input, 'OVERALL_EFFICIENCY')
     quality_report_input = accuarcy_quality_report(quality_report_input, 'QUALITY_REPORT')
 
+    
     total_load_df["overall_total_load_pk"] = total_load_df['unit'] + '_' + total_load_df['tool_info'] + '_' + total_load_df['machine']
     total_load_df = total_load_df[["overall_total_load_pk", "total_actual_days"]]
 
     combined_df = pd.merge(total_load_df, daily_report_df, how='inner', left_on="overall_total_load_pk", right_on="daily_hours_pk")
 
+    
     combined_df["daily_hours_diff_in_days"] = combined_df["daily_hours_diff_in_days"].abs()
     combined_df["daily_total_diff_days"] = combined_df["total_actual_days"] - combined_df["daily_hours_diff_in_days"]
 
     combined_df["overall_efficiency"] = round((combined_df["total_actual_days"] / combined_df["daily_total_diff_days"]) * 100)
 
+    print(combined_df)
     required_combined_df = combined_df[["tool_info", "machine", "overall_efficiency"]]
 
     efficiency_with_rejects_df = pd.merge(required_combined_df, quality_report_input, how='inner', on=["tool_info", "machine"])
@@ -288,41 +302,80 @@ def daily_report_output(total_load_input, daily_report_input):
     if ((total_load_input.empty) or (daily_report_input.empty)):
         return pd.DataFrame()
 
-    total_load_input = total_load_input.drop_duplicates(['unit', "tool_no", "tool_name", "machine"])
+    total_load_on_systems_output = forcast_tool_output(total_load_input)
+    total_load_on_systems_output = total_load_on_systems_output[["total_load_pk", "estimated_hours", "buffer_hours", "capacity_day"]]
+    # daily_report_input = daily_report_input.drop_duplicates(['unit', "tool_no", "tool_name", "machine", "insert"])
     # Convert input to lower case
-    total_load_input = total_load_input.applymap(lambda x: x.lower() if type(x) == str else x)
-
-    daily_report_input = daily_report_input.drop_duplicates(['unit', "tool_no", "tool_name", "machine"])
-    # Convert input to lower case
+    daily_report_input["tool_name"] = daily_report_input['tool_name'].str.lower()
+    daily_report_input["insert"] = daily_report_input['insert'].str.lower()
+    daily_report_input["machine_name"] = daily_report_input['machine_name'].str.lower()
     daily_report_input = daily_report_input.applymap(lambda x: x.lower() if type(x) == str else x)
 
-    total_load_input = total_load_input[["unit", "tool_no", "tool_name", "machine", "estimated_hours", "buffer_hours"]]
-    total_load_input['estimated_hours'] = total_load_input['estimated_hours'].fillna(0)
-    total_load_input['buffer_hours'] = total_load_input['buffer_hours'].fillna(total_load_input['estimated_hours'])
-    # Buffer hours wiil be in percentage converting percentage to values
-    total_load_input['buffer_hours'] = total_load_input['estimated_hours'] + (total_load_input['estimated_hours']/total_load_input['buffer_hours'])
-    total_load_input['tool_info'] = total_load_input['tool_no'] + " " + total_load_input['tool_name']
-
-    total_load_df = total_load_input.groupby(["unit", "tool_info", "machine"], sort=False)[['estimated_hours', 'buffer_hours']].sum().reset_index()
-
-    total_load_df['total_load_pk'] = total_load_df['unit'] + '_' + total_load_df['tool_info'] + '_' + total_load_df['machine']
-
-
-    daily_report_input = daily_report_input[["unit", "tool_no", "tool_name", "machine", "num_of_hours", "daily_date"]]
+    # daily_report_input = daily_report_input[["unit", "tool_no", "tool_name", "insert", "machine", "num_of_hours", "daily_date"]]
     daily_report_input['tool_info'] = daily_report_input['tool_no'] + " " + daily_report_input['tool_name']
 
-    daily_report_df = daily_report_input.groupby(["unit", "tool_info", "machine", "daily_date"], sort=False).num_of_hours.sum().reset_index()
+    daily_report_df = daily_report_input.groupby(["unit", "tool_info", "insert", "machine"], sort=False).num_of_hours.sum().reset_index()
 
     daily_report_df['daily_hours_pk'] = daily_report_df['unit'] + '_' + daily_report_df['tool_info'] + '_' + daily_report_df['machine']
 
+    daily_report_df = daily_report_df[["unit", "daily_hours_pk", "tool_info", "insert", "machine", "num_of_hours"]]
 
-    total_load_df = total_load_df[["total_load_pk", "estimated_hours", "buffer_hours"]]
-    daily_report_df = daily_report_df[["daily_hours_pk", "tool_info", "machine", "num_of_hours"]]
-    combined_df = pd.merge(total_load_df, daily_report_df, how='inner', left_on="total_load_pk", right_on="daily_hours_pk")
+    combined_df = pd.merge(total_load_on_systems_output, daily_report_df, how='right', left_on="total_load_pk", right_on="daily_hours_pk")
+    # combined_df['cummulative_num_of_hours'] = combined_df.groupby(['unit', 'tool_info', 'machine'])['num_of_hours'].cumsum()
 
-    combined_df["balance_hours_as_on_today"] = combined_df["estimated_hours"] - combined_df["num_of_hours"]
+    
+    combined_df["balance_hours_as_on_today"] = combined_df["capacity_day"] - combined_df["num_of_hours"]
 
-    pivoted_df = combined_df.pivot_table(index='tool_info', columns='machine', values=["balance_hours_as_on_today", "estimated_hours", "num_of_hours", "buffer_hours"]).reset_index()
+    final_df = cal_expected_hours_as_on_today(combined_df)
+
+    # print(final_df)
+    final_df = final_df.fillna(0)
+    # print(final_df)
+    # TO remove the decimals
+    final_df['expected_hours_as_on_today'] = final_df['expected_hours_as_on_today'].astype(int)
+    final_df['expected_hours_as_on_today_with_buffer'] = final_df['expected_hours_as_on_today_with_buffer'].astype(int)
+
+    
+    final_df = final_df.apply(add_progress_to_expected_hours, axis=1)
+    # Output latest daily record for each unit, tool and machine
+    final_df = final_df.groupby('daily_hours_pk').tail(1).reset_index()
+
+    final_df = final_df[["tool_info", "unit", "machine", "num_of_hours", "balance_hours_as_on_today", "expected_hours_as_on_today", "expected_hours_as_on_today_with_buffer"]]
+
+    final_df["tool_info"] = final_df["unit"] + ', ' + final_df["tool_info"]
+
+    
+    pivoted_df = final_df.pivot(index='tool_info', columns='machine', values=["num_of_hours", "balance_hours_as_on_today", "expected_hours_as_on_today", "expected_hours_as_on_today_with_buffer"]).reset_index()
     pivoted_df.columns.name=None
 
+    # print(pivoted_df)
     return pivoted_df
+
+# Function to calculate expected hours as on today.
+def cal_expected_hours_as_on_today(df):
+    df.loc[0, "expected_hours_as_on_today"] = df.loc[0, "estimated_hours"] - df.loc[0, "capacity_day"]
+    df.loc[0, "expected_hours_as_on_today_with_buffer"] = df.loc[0, "buffer_hours"] - df.loc[0, "capacity_day"]
+    if (df.shape[0] == 1):
+        return df
+    else:
+        for i in range(1, len(df)):
+            df.loc[i, "expected_hours_as_on_today"] = df.loc[i-1, "expected_hours_as_on_today"] - df.loc[i, "capacity_day"]
+            df.loc[i, "expected_hours_as_on_today_with_buffer"] = df.loc[i-1, "expected_hours_as_on_today_with_buffer"] - df.loc[i, "capacity_day"]
+        return df
+
+def add_progress_to_expected_hours(row):
+    if row["expected_hours_as_on_today"] < 0:
+        row["expected_hours_as_on_today"] = 'Delayed' + '(' + str(row["expected_hours_as_on_today"]) + ')'
+    elif row["expected_hours_as_on_today"] == 0:
+        row["expected_hours_as_on_today"] = 'Expected'
+    else:
+        row["expected_hours_as_on_today"] = 'progress' + '(' + str(row["expected_hours_as_on_today"]) + ')'
+
+    if row["expected_hours_as_on_today_with_buffer"] < 0:
+        row["expected_hours_as_on_today_with_buffer"] = 'Delayed' + '(' + str(row["expected_hours_as_on_today_with_buffer"]) + ')'
+    elif row["expected_hours_as_on_today_with_buffer"] == 0:
+        row["expected_hours_as_on_today_with_buffer"] = 'Expected'
+    else:
+        row["expected_hours_as_on_today_with_buffer"] = 'progress' + '(' + str(row["expected_hours_as_on_today_with_buffer"]) + ')'
+
+    return row
