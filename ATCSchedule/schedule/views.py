@@ -196,7 +196,7 @@ def output_req_func(request, df, html, *args):
         if (html == 'test_block.html'):
             output = total_load_on_systems_output(df)
         if (html == 'usage_efficiency_report_output.html'):
-            output = usage_efficiency_report(df, df1)
+            output = usage_efficiency_report(df, df1, df2)
         if (html == 'quality_report_output.html'):
             output = accuarcy_quality_report(df)
         if (html == 'overall_efficiency_output.html'):
@@ -211,11 +211,13 @@ def output_req_func(request, df, html, *args):
         dict_ = output.reset_index().to_dict(orient ='records')
         if ((html == 'daily_report.html') | (html == 'usage_efficiency_report_output.html') | (html == 'overall_efficiency_output.html')):
             dict_ = convert_tuple_dict_to_dict(dict_)
-
+            print(dict_)
+        # print(dict_)
         json_records = json.dumps(dict_, default=convert_timestamp)
         data = []
         data = json.loads(json_records)
         context = {'d': data}
+        print(context)
         return render(request, html, context)
 
 @login_required(login_url='Login')
@@ -260,7 +262,8 @@ def overall_effiency_output(request):
 def usage_efficiency_output(request):
     df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
     df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
-    return output_req_func(request, df, 'usage_efficiency_report_output.html', df1)
+    df2 = pd.DataFrame(list(QualityReportInput.objects.all().values()))
+    return output_req_func(request, df, 'usage_efficiency_report_output.html', df1, df2)
 
 def csv_upload(request):
     prompt = {order:"text"}
