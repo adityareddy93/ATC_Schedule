@@ -15,25 +15,71 @@ import pandas as pd
 import json
 import datetime
 
-def handle_csv(file):
+def handle_csv(file, html_page):
     df = pd.read_csv(file,delimiter=',')
     print(df.columns)
-    df['Insertion date'] = pd.to_datetime(df['Insertion date'])
-    df['Insertion date'] = df['Insertion date'].dt.strftime('%Y-%m-%d')
-    csv_list = [list(row) for row in df.values]
 
-    for i in csv_list:
-        TotalLoadOnSystemsInput.objects.create(
-            unit = i[0],
-            tool_no = i[1],
-            tool_name= i[2],
-            insert= i[3],
-            num_of_inserts= i[4],
-            machine= i[5],
-            estimated_hours= i[6],
-            buffer_hours= i[7],
-            insertion_date= i[8],
-        )
+    if (html_page == 'form.html'):
+        print("total")
+        df['Insertion date'] = pd.to_datetime(df['Insertion date'])
+        df['Insertion date'] = df['Insertion date'].dt.strftime('%Y-%m-%d')
+        csv_list = [list(row) for row in df.values]
+        db = TotalLoadOnSystemsInput
+        # columns = ['unit', 'tool_no','tool_name','insert','machine', 'estimated_hours', 'buffer_hours', 'insertion_date']
+        for i in csv_list:
+            db.objects.create(
+                unit = i[0],
+                tool_no = i[1],
+                tool_name= i[2],
+                insert= i[3],
+                num_of_inserts= i[4],
+                machine= i[5],
+                estimated_hours= i[6],
+                buffer_hours= i[7],
+                insertion_date= i[8],
+            )
+    if (html_page == 'daily_report_input.html'):
+        print("daily")
+        df['Daily date'] = pd.to_datetime(df['Daily date'])
+        df['Daily date'] = df['Daily date'].dt.strftime('%Y-%m-%d')
+        csv_list = [list(row) for row in df.values]
+        db = DailyMachineHoursInput
+        # columns = ['unit', 'tool_no','tool_name','insert','machine', 'machine_name', 'num_of_hours', 'daily_date']
+        for i in csv_list:
+            db.objects.create(
+                unit = i[0],
+                tool_no = i[1],
+                tool_name= i[2],
+                insert= i[3],
+                machine= i[4],
+                machine_name= i[5],
+                num_of_hours= i[6],
+                daily_date= i[7],
+            )
+    if (html_page == 'accuracy_input.html'):
+        print("quality")
+        print(df)
+        df['Insertion date'] = pd.to_datetime(df['Insertion date'])
+        df['Insertion date'] = df['Insertion date'].dt.strftime('%Y-%m-%d')
+        print(df)
+        csv_list = [list(row) for row in df.values]
+        db = QualityReportInput
+        # columns = ['unit', 'tool_no','tool_name','insert','turning', 'milling', 'edm', 'wire_cut', 'insertion_date']
+        for i in csv_list:
+            print("hello")
+            print(i)
+            db.objects.create(
+                unit = i[0],
+                tool_no = i[1],
+                tool_name= i[2],
+                insert= i[3],
+                turning= i[4],
+                milling= i[5],
+                edm= i[6],
+                wire_cut= i[7],
+                num_of_rejects= i[8],
+                insertion_date= i[9],
+            )
     
 
 
@@ -84,6 +130,26 @@ def logoutpage(request):
 def base(request):
     return render(request,'home1.html',{"bool_val":True,'developer':"DEVELOPED BY ARN TECH GROUP"})
 
+# def csv_upload_for_inputs(html_page):
+#         if (html_page == 'form.html'):
+#             min_id = TotalLoadOnSystemsInput.objects.values('unit', 'tool_no','tool_name','insert','machine').annotate(minid=Min('id'))
+#         if (html_page == 'daily_report_input.html'):
+#             min_id = DailyMachineHoursInput.objects.values('unit', 'tool_no','tool_name','insert','machine', 'daily_date').annotate(minid=Min('id'))
+#         if (html_page == 'accuracy_input.html'):
+#             min_id = QualityReportInput.objects.values('unit', 'tool_no','tool_name','insert','machine', 'insertion_date').annotate(minid=Min('id'))
+
+#         min_ids = [obj['minid'] for obj in min_id]
+
+        # if (html_page == 'form.html'):
+        #     TotalLoadOnSystemsInput.objects.exclude(id__in=min_ids).delete()
+        # if (html_page == 'daily_report_input.html'):
+        #     DailyMachineHoursInput.objects.exclude(id__in=min_ids).delete()
+        # if (html_page == 'accuracy_input.html'):
+        #     QualityReportInput.objects.exclude(id__in=min_ids).delete()
+
+        # return HttpResponseRedirect(submit_req_str)
+        # print(min_ids)
+        # return min_ids
 # Input functions
 def input_page_req_func(request, input_form, submit_req_str, df, html):
     submit = False
@@ -94,10 +160,28 @@ def input_page_req_func(request, input_form, submit_req_str, df, html):
         form_file = UploadFile(request.POST)
         if request.method=='POST' and 'file' in request.POST:
             csv_file = request.FILES['file']
-            handle_csv(csv_file)
-            min_id = TotalLoadOnSystemsInput.objects.values('unit', 'tool_no','tool_name','insert','machine').annotate(minid=Min('id'))
+            handle_csv(csv_file, html)
+            # *************&&&&&&&&&&&&&&&&&&&&&&&&*******************************************
+            # min_ids = csv_upload_for_inputs(html)
+            if (html == 'form.html'):
+                min_id = TotalLoadOnSystemsInput.objects.values('unit', 'tool_no','tool_name','insert','machine').annotate(minid=Min('id'))
+                min_ids = [obj['minid'] for obj in min_id]
+                TotalLoadOnSystemsInput.objects.exclude(id__in=min_ids).delete()
+            if (html == 'daily_report_input.html'):
+                min_id = DailyMachineHoursInput.objects.values('unit', 'tool_no','tool_name','insert','machine', 'daily_date').annotate(minid=Min('id'))
+                min_ids = [obj['minid'] for obj in min_id]
+                DailyMachineHoursInput.objects.exclude(id__in=min_ids).delete()
+            if (html == 'accuracy_input.html'):
+                min_id = QualityReportInput.objects.values('unit', 'tool_no','tool_name','insert').annotate(minid=Min('id'))
+                min_ids = [obj['minid'] for obj in min_id]
+                QualityReportInput.objects.exclude(id__in=min_ids).delete()
             min_ids = [obj['minid'] for obj in min_id]
-            TotalLoadOnSystemsInput.objects.exclude(id__in=min_ids).delete()
+            print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+            print(csv_file)
+            # *************&&&&&&&&&&&&&&&&&&&&&&&&*******************************************
+            # min_id = TotalLoadOnSystemsInput.objects.values('unit', 'tool_no','tool_name','insert','machine').annotate(minid=Min('id'))
+            # min_ids = [obj['minid'] for obj in min_id]
+            # TotalLoadOnSystemsInput.objects.exclude(id__in=min_ids).delete()
 
             return HttpResponseRedirect(submit_req_str)
         else:
@@ -110,6 +194,7 @@ def input_page_req_func(request, input_form, submit_req_str, df, html):
                 if 'submit' in request.GET:
                     submit=True
     # df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
+    print(df)
     df = df.loc[::-1]
     def convert_timestamp(item_date_object):
         if isinstance(item_date_object, (datetime.date, datetime.datetime)):

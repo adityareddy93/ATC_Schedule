@@ -185,12 +185,14 @@ def usage_efficiency_report(total_load_input, daily_report_input, quality_report
 
     # Efficinecy
     efficiency_df = overall_efficiency_report(total_load_input, daily_report_input, quality_report_input, 'USAGE_EFFICIENCY')
-    print(efficiency_df)
 
+    if (efficiency_df.empty):
+        return pd.DataFrame()
+    # print(efficiency_df)
     merged_df = pd.merge(total_df, efficiency_df, how='inner', left_on=["tool_info", "machine"], right_on=["tool_info", "machine"])
 
-    if (merged_df.empty):
-        return pd.DataFrame()
+    # if (merged_df.empty):
+    #     return pd.DataFrame()
     grouped_overall_df = merged_df.groupby(["tool_info", "machine"], sort=False)[['estimated_hours', 'num_of_hours']].sum().reset_index()
 
     # print(merged_df)
@@ -199,14 +201,14 @@ def usage_efficiency_report(total_load_input, daily_report_input, quality_report
     # merged_df["daily_hours_diff"] = merged_df["capacity_day"] - merged_df["num_of_hours"]
     # merged_df["cap_value"] = round(merged_df["num_of_hours"] / merged_df["capacity_day"])
 
-    print(merged_df)
+    # print(merged_df)
     merged_df = merged_df.apply(cap_value_validation, axis=1)
     merged_df['completion_date_with_out_buffer'] = merged_df['completion_date_with_out_buffer'] + pd.to_timedelta(merged_df['cap_value'], unit='D')
 
-    print("KKkKKKK))))))))))))))))))))))))))))))***********")
+    # print("KKkKKKK))))))))))))))))))))))))))))))***********")
     print(merged_df)
 
-    pivoted_df = merged_df.pivot(index='tool_info', columns='machine', values=["completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]).reset_index()
+    pivoted_df = merged_df.pivot(index=['tool_info', 'insert'], columns='machine', values=["completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]).reset_index()
     pivoted_df.columns.name=None
 
     pivoted_df = pivoted_df.fillna(0)
@@ -215,55 +217,55 @@ def usage_efficiency_report(total_load_input, daily_report_input, quality_report
 
     # ---------------------------------------------88**********************_-------------------------------------------------------------
 
-    daily_df = daily_report_output(total_load_input, daily_report_input, 'DAILY_REPORT')
-    if (not(daily_df.empty)):
-        grouped_daily_df = daily_df.groupby(["unit", "tool_info", "machine", "insert"], sort=False)[['estimated_hours', 'num_of_hours']].sum().reset_index()
-    else:
-        grouped_daily_df = pd.Dataframe()
+    # daily_df = daily_report_output(total_load_input, daily_report_input, 'DAILY_REPORT')
+    # if (not(daily_df.empty)):
+    #     grouped_daily_df = daily_df.groupby(["unit", "tool_info", "machine", "insert"], sort=False)[['estimated_hours', 'num_of_hours']].sum().reset_index()
+    # else:
+    #     grouped_daily_df = pd.Dataframe()
 
-    # Estimated
-    total_df = forcast_tool_output(total_load_input)
-    total_df = total_df[["unit", "tool_info", "insert", "machine", "completion_date_with_out_buffer"]]
-    total_df["tool_info"] = total_df["unit"] + ', ' + total_df["tool_info"]
-    # print(total_df)
-    # total_df = total_df.loc[total_df.groupby('tool_info').completion_date_with_out_buffer.idxmax()]
+    # # Estimated
+    # total_df = forcast_tool_output(total_load_input)
+    # total_df = total_df[["unit", "tool_info", "insert", "machine", "completion_date_with_out_buffer"]]
+    # total_df["tool_info"] = total_df["unit"] + ', ' + total_df["tool_info"]
+    # # print(total_df)
+    # # total_df = total_df.loc[total_df.groupby('tool_info').completion_date_with_out_buffer.idxmax()]
 
-    # Daily Report
-    grouped_daily_df["tool_info"] = grouped_daily_df["unit"] + ', ' + grouped_daily_df["tool_info"]
+    # # Daily Report
+    # grouped_daily_df["tool_info"] = grouped_daily_df["unit"] + ', ' + grouped_daily_df["tool_info"]
 
-    merged_df = pd.merge(total_df, grouped_daily_df, how='inner', left_on=["tool_info", "insert", "machine"], right_on=["tool_info", "insert", "machine"])
+    # merged_df = pd.merge(total_df, grouped_daily_df, how='inner', left_on=["tool_info", "insert", "machine"], right_on=["tool_info", "insert", "machine"])
 
-    if (merged_df.empty):
-        return pd.DataFrame()
-    # print(merged_df)
-    merged_df["capacity_day"] = merged_df.apply(lambda x: return_unit_capacity(x['unit_x'], x['machine']), axis = 1)
+    # if (merged_df.empty):
+    #     return pd.DataFrame()
+    # # print(merged_df)
+    # merged_df["capacity_day"] = merged_df.apply(lambda x: return_unit_capacity(x['unit_x'], x['machine']), axis = 1)
 
-    # merged_df["daily_hours_diff"] = merged_df["capacity_day"] - merged_df["num_of_hours"]
-    merged_df["cap_value"] = round(merged_df["num_of_hours"] / merged_df["capacity_day"])
+    # # merged_df["daily_hours_diff"] = merged_df["capacity_day"] - merged_df["num_of_hours"]
+    # merged_df["cap_value"] = round(merged_df["num_of_hours"] / merged_df["capacity_day"])
 
-    merged_df['completion_date_with_out_buffer'] = merged_df['completion_date_with_out_buffer'] + pd.to_timedelta(merged_df['cap_value'], unit='D')
+    # merged_df['completion_date_with_out_buffer'] = merged_df['completion_date_with_out_buffer'] + pd.to_timedelta(merged_df['cap_value'], unit='D')
 
-    if (args):
-        for str in args:
-            if str == 'OVERALL_EFFICIENCY':
-                return merged_df[["tool_info", "machine", "estimated_hours", "num_of_hours"]]
-            else:
-                break
+    # if (args):
+    #     for str in args:
+    #         if str == 'OVERALL_EFFICIENCY':
+    #             return merged_df[["tool_info", "machine", "estimated_hours", "num_of_hours"]]
+    #         else:
+    #             break
     
-    merged_df['tool_info'] = merged_df['tool_info'] + '_' + merged_df['insert'] + '_' + merged_df['machine']
-    merged_df = merged_df[
-        ["tool_info", "machine", "completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]]
+    # merged_df['tool_info'] = merged_df['tool_info'] + '_' + merged_df['insert'] + '_' + merged_df['machine']
+    # merged_df = merged_df[
+    #     ["tool_info", "machine", "completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]]
 
-    merged_df = merged_df.groupby('completion_date_with_out_buffer').max()
+    # merged_df = merged_df.groupby('completion_date_with_out_buffer').max()
 
-    # print(merged_df)
-    pivoted_df = merged_df.pivot(index='tool_info', columns='machine', values=["completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]).reset_index()
-    pivoted_df.columns.name=None
+    # # print(merged_df)
+    # pivoted_df = merged_df.pivot(index='tool_info', columns='machine', values=["completion_date_with_out_buffer", "estimated_hours", "num_of_hours"]).reset_index()
+    # pivoted_df.columns.name=None
 
-    # To remove the null values
-    pivoted_df = pivoted_df.fillna(0)
-    # print(pivoted_df)
-    return pivoted_df
+    # # To remove the null values
+    # pivoted_df = pivoted_df.fillna(0)
+    # # print(pivoted_df)
+    # return pivoted_df
     # return pivoted_df
 
 def accuarcy_quality_report(quality_report_input, *args):
@@ -327,6 +329,9 @@ def overall_efficiency_report(total_load_input, daily_report_input, quality_repo
     quality_report_input = accuarcy_quality_report(quality_report_input)
 
     daily_report = daily_report_output(total_load_input, daily_report_input, 'DAILY_REPORT')
+
+    if (daily_report.empty):
+        return pd.DataFrame()
 
     daily_report['tool_info'] = daily_report['unit'] + ", " + daily_report['tool_info']
 
@@ -406,26 +411,25 @@ def daily_report_output(total_load_input, daily_report, *args):
     if (combined_df.empty):
         return pd.DataFrame()
     
-    grouped_df = combined_df.groupby(["unit", "tool_info", "insert", "machine", "daily_date"], sort=False)[['estimated_hours', 'buffer_hours', 'num_of_hours']].sum().reset_index()
+    result_df = combined_df.groupby(["unit", "tool_info", "insert", "machine", "daily_date"], sort=False)[['estimated_hours', 'buffer_hours', 'num_of_hours']].sum().reset_index()
     
-    grouped_df["balance_hours_as_on_today"] = grouped_df["estimated_hours"] - grouped_df["num_of_hours"]
+    result_df["balance_hours_as_on_today"] = result_df["estimated_hours"] - result_df["num_of_hours"]
     
     # grouped_with_out_insert = combined_df.groupby(["unit", "tool_info", "machine", "daily_date"], sort=False)[['estimated_hours', 'buffer_hours']].sum().reset_index()
     # print(grouped_with_out_insert)
     # result_df_1 = cal_expected_hours_as_on_today(grouped_with_out_insert)
     # print(result_df_1)
-    result_df = cal_expected_hours_as_on_today(grouped_df)
+    # result_df = cal_expected_hours_as_on_today(grouped_df)
 
     # print(result_df)
     # TO remove the decimals
-    result_df['expected_hours_as_on_today'] = result_df['expected_hours_as_on_today'].astype(int)
-    result_df['expected_hours_as_on_today_with_buffer'] = result_df['expected_hours_as_on_today_with_buffer'].astype(int)
+    # result_df['expected_hours_as_on_today'] = result_df['expected_hours_as_on_today'].astype(int)
+    # result_df['expected_hours_as_on_today_with_buffer'] = result_df['expected_hours_as_on_today_with_buffer'].astype(int)
 
-    result_df = result_df.apply(add_progress_to_expected_hours, axis=1)
+    result_df = result_df.apply(balance_hour_validation, axis=1)
 
     if (args):
         for str_arg in args:
-            print()
             if str_arg == 'DAILY_REPORT':
                 return result_df
             else:
@@ -437,7 +441,7 @@ def daily_report_output(total_load_input, daily_report, *args):
     # Output latest daily record for each unit, tool and machine
     result_df = result_df.loc[(result_df['daily_date'] == latest_date)]
 
-    pivoted_df = result_df.pivot(index=['tool_info', 'insert', 'daily_date'], columns='machine', values=["num_of_hours", "balance_hours_as_on_today", "expected_hours_as_on_today", "expected_hours_as_on_today_with_buffer"]).reset_index()
+    pivoted_df = result_df.pivot(index=['tool_info', 'insert', 'daily_date'], columns='machine', values=["num_of_hours", "balance_hours_as_on_today"]).reset_index()
     pivoted_df.columns.name=None
 
     return pivoted_df

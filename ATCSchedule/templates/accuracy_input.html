@@ -83,8 +83,15 @@
         {% else %}
     <h2> &nbsp;&nbsp;&nbsp;Quality Report </h2>
     <center>
+      <form action = "" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type = "file" name="file">
+        <button type="submit" name="file">Upload</button>
+      </form>
+    </center>>
+    <center>
     
-      <form action = "" method="post">
+      <form action = "" method="post" enctype="multipart/form-data">
             <table id="customers">
         {% csrf_token %}
             <tr>

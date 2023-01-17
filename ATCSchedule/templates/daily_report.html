@@ -62,55 +62,54 @@
     {% csrf_token %}
 
   <br><br>
-
   <center>
 
   <table id="customers">
     <tr>
       <th colspan="1">Tool Information</th>
-      <th colspan="4">Turning</th>
-      <th colspan="4">Milling</th>
-      <th colspan="4">EDM</th>
-      <th colspan="4">Wire Cut</th>
+      <th colspan="2">Turning</th>
+      <th colspan="2">Milling</th>
+      <th colspan="2">EDM</th>
+      <th colspan="2">Wire Cut</th>
     </tr>
     <tr>
       <th></th>
       <th>Work done Today</th>
       <th>balance hours as on today</th>
-      <th>Expected balance hours as on today</th>
-      <th>Expected balance hours as on today(Buffer time)</th>
+      <!-- <th>Expected balance hours as on today</th>
+      <th>Expected balance hours as on today(Buffer time)</th> -->
       <th>Work done Today</th>
       <th>balance hours as on today</th>
-      <th>Expected balance hours as on today</th>
-      <th>Expected balance hours as on today(Buffer time)</th>
+      <!-- <th>Expected balance hours as on today</th>
+      <th>Expected balance hours as on today(Buffer time)</th> -->
       <th>Work done Today</th>
       <th>balance hours as on today</th>
-      <th>Expected balance hours as on today</th>
-      <th>Expected balance hours as on today(Buffer time)</th>
+      <!-- <th>Expected balance hours as on today</th>
+      <th>Expected balance hours as on today(Buffer time)</th> -->
       <th>Work done Today</th>
       <th>balance hours as on today</th>
-      <th>Expected balance hours as on today</th>
-      <th>Expected balance hours as on today(Buffer time)</th>
+      <!-- <th>Expected balance hours as on today</th>
+      <th>Expected balance hours as on today(Buffer time)</th> -->
     </tr>
     {% for i in d %}
     <tr>
       <td>{{i.tool_info_}}</td>
       <td>{{i.num_of_hours_turning}}</td>
       <td>{{i.balance_hours_as_on_today_turning}}</td>
-      <td>{{i.expected_hours_as_on_today_turning}}</td>
-      <td>{{i.expected_hours_as_on_today_with_buffer_turning}}</td>
+      <!-- <td>{{i.expected_hours_as_on_today_turning}}</td>
+      <td>{{i.expected_hours_as_on_today_with_buffer_turning}}</td> -->
       <td>{{i.num_of_hours_milling}}</td>
       <td>{{i.balance_hours_as_on_today_milling}}</td>
-      <td>{{i.expected_hours_as_on_today_milling}}</td>
-      <td>{{i.expected_hours_as_on_today_with_buffer_milling}}</td>
+      <!-- <td>{{i.expected_hours_as_on_today_milling}}</td>
+      <td>{{i.expected_hours_as_on_today_with_buffer_milling}}</td> -->
       <td>{{i.num_of_hours_edm}}</td>
       <td>{{i.balance_hours_as_on_today_edm}}</td>
-      <td>{{i.expected_hours_as_on_today_edm}}</td>
-      <td>{{i.expected_hours_as_on_today_with_buffer_edm}}</td>
+      <!-- <td>{{i.expected_hours_as_on_today_edm}}</td>
+      <td>{{i.expected_hours_as_on_today_with_buffer_edm}}</td> -->
       <td>{{i.num_of_hours_wire_cut}}</td>
       <td>{{i.balance_hours_as_on_today_wire_cut}}</td>
-      <td>{{i.expected_hours_as_on_today_wire_cut}}</td>
-      <td>{{i.expected_hours_as_on_today_with_buffer_wire_cut}}</td>
+      <!-- <td>{{i.expected_hours_as_on_today_wire_cut}}</td>
+      <td>{{i.expected_hours_as_on_today_with_buffer_wire_cut}}</td> -->
   </tr>
   {% endfor %}
   </table>
