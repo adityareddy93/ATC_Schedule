@@ -95,9 +95,9 @@ def cal_dates(df):
 
 # Calculate forcast date for total load on systems.
 def forcast_tool_output(df):
-    # if (!(df)) {
-    #     return pd.DataFrame()
-    # }
+    if (df.empty):
+        return pd.DataFrame()
+
     df = df.drop_duplicates(['unit', "tool_no", "tool_name", "machine", "insert"])
 
     df["tool_name"] = df['tool_name'].str.lower()
