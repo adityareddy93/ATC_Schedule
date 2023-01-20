@@ -73,15 +73,14 @@
 
     <table id="customers">
       <tr>
-        <th colspan="2">Tool Information</th>
+        <th colspan="1">Tool Information</th>
         <th colspan="3">Turning</th>
         <th colspan="3">Milling</th>
         <th colspan="3">EDM</th>
         <th colspan="3">Wire Cut</th>
       </tr>
       <tr>
-        <th>Tool</th>
-        <th>Insert</th>
+        <th></th>
         <th>Planned</th>
         <th>Actual</th>
         <th>Completion Date</th>
@@ -98,19 +97,18 @@
       {% for i in d %}
       <tr>
         <td>{{i.tool_info_}}</td>
-        <td>{{i.insert_}}</td>
         <td>{{i.estimated_hours_turning}}</td>
         <td>{{i.num_of_hours_turning}}</td>
-        <td>{{i.completion_date_with_out_buffer_turning}}</td>
+        <td>{{i.max_daily_date_turning}}</td>
         <td>{{i.estimated_hours_milling}}</td>
         <td>{{i.num_of_hours_milling}}</td>
-        <td>{{i.completion_date_with_out_buffer_milling}}</td>
+        <td>{{i.max_daily_date_milling}}</td>
         <td>{{i.estimated_hours_edm}}</td>
         <td>{{i.num_of_hours_edm}}</td>
-        <td>{{i.completion_date_with_out_buffer_edm}}</td>
+        <td>{{i.max_daily_date_edm}}</td>
         <td>{{i.estimated_hours_wire_cut}}</td>
         <td>{{i.num_of_hours_wire_cut}}</td>
-        <td>{{i.completion_date_with_out_buffer_wire_cut}}</td>
+        <td>{{i.max_daily_date_wire_cut}}</td>
       </tr>
       {% endfor %}
     </table>

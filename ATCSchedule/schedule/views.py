@@ -20,7 +20,7 @@ def handle_csv(file, html_page):
     print(df.columns)
 
     if (html_page == 'form.html'):
-        print("total")
+        # print("total")
         df['Insertion date'] = pd.to_datetime(df['Insertion date'])
         df['Insertion date'] = df['Insertion date'].dt.strftime('%Y-%m-%d')
         csv_list = [list(row) for row in df.values]
@@ -39,7 +39,7 @@ def handle_csv(file, html_page):
                 insertion_date= i[8],
             )
     if (html_page == 'daily_report_input.html'):
-        print("daily")
+        # print("daily")
         df['Daily date'] = pd.to_datetime(df['Daily date'])
         df['Daily date'] = df['Daily date'].dt.strftime('%Y-%m-%d')
         csv_list = [list(row) for row in df.values]
@@ -54,20 +54,21 @@ def handle_csv(file, html_page):
                 machine= i[4],
                 machine_name= i[5],
                 num_of_hours= i[6],
-                daily_date= i[7],
+                status= i[7],
+                daily_date= i[8],
             )
     if (html_page == 'accuracy_input.html'):
-        print("quality")
-        print(df)
+        # print("quality")
+        # print(df)
         df['Insertion date'] = pd.to_datetime(df['Insertion date'])
         df['Insertion date'] = df['Insertion date'].dt.strftime('%Y-%m-%d')
-        print(df)
+        # print(df)
         csv_list = [list(row) for row in df.values]
         db = QualityReportInput
         # columns = ['unit', 'tool_no','tool_name','insert','turning', 'milling', 'edm', 'wire_cut', 'insertion_date']
         for i in csv_list:
-            print("hello")
-            print(i)
+            # print("hello")
+            # print(i)
             db.objects.create(
                 unit = i[0],
                 tool_no = i[1],
@@ -80,7 +81,7 @@ def handle_csv(file, html_page):
                 num_of_rejects= i[8],
                 insertion_date= i[9],
             )
-    
+
 
 
 # Create your views here.
@@ -130,26 +131,6 @@ def logoutpage(request):
 def base(request):
     return render(request,'home1.html',{"bool_val":True,'developer':"DEVELOPED BY ARN TECH GROUP"})
 
-# def csv_upload_for_inputs(html_page):
-#         if (html_page == 'form.html'):
-#             min_id = TotalLoadOnSystemsInput.objects.values('unit', 'tool_no','tool_name','insert','machine').annotate(minid=Min('id'))
-#         if (html_page == 'daily_report_input.html'):
-#             min_id = DailyMachineHoursInput.objects.values('unit', 'tool_no','tool_name','insert','machine', 'daily_date').annotate(minid=Min('id'))
-#         if (html_page == 'accuracy_input.html'):
-#             min_id = QualityReportInput.objects.values('unit', 'tool_no','tool_name','insert','machine', 'insertion_date').annotate(minid=Min('id'))
-
-#         min_ids = [obj['minid'] for obj in min_id]
-
-        # if (html_page == 'form.html'):
-        #     TotalLoadOnSystemsInput.objects.exclude(id__in=min_ids).delete()
-        # if (html_page == 'daily_report_input.html'):
-        #     DailyMachineHoursInput.objects.exclude(id__in=min_ids).delete()
-        # if (html_page == 'accuracy_input.html'):
-        #     QualityReportInput.objects.exclude(id__in=min_ids).delete()
-
-        # return HttpResponseRedirect(submit_req_str)
-        # print(min_ids)
-        # return min_ids
 # Input functions
 def input_page_req_func(request, input_form, submit_req_str, df, html):
     submit = False
@@ -176,12 +157,8 @@ def input_page_req_func(request, input_form, submit_req_str, df, html):
                 min_ids = [obj['minid'] for obj in min_id]
                 QualityReportInput.objects.exclude(id__in=min_ids).delete()
             min_ids = [obj['minid'] for obj in min_id]
-            print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-            print(csv_file)
-            # *************&&&&&&&&&&&&&&&&&&&&&&&&*******************************************
-            # min_id = TotalLoadOnSystemsInput.objects.values('unit', 'tool_no','tool_name','insert','machine').annotate(minid=Min('id'))
-            # min_ids = [obj['minid'] for obj in min_id]
-            # TotalLoadOnSystemsInput.objects.exclude(id__in=min_ids).delete()
+            # print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+            # print(csv_file)
 
             return HttpResponseRedirect(submit_req_str)
         else:
@@ -190,7 +167,7 @@ def input_page_req_func(request, input_form, submit_req_str, df, html):
                 return HttpResponseRedirect(submit_req_str)
             else:
                 form = input_form
-                print("second part")
+                # print("second part")
                 if 'submit' in request.GET:
                     submit=True
     # df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
@@ -266,6 +243,7 @@ def output_req_func(request, df, html, *args):
         def convert_tuple_dict_to_dict(output):
             lst = []
             for val in output:
+                # print(val)
                 new_dict = {}
                 for key, value in val.items():
                     new_dict[key[0] + '_' + key[1]] = value
@@ -281,7 +259,7 @@ def output_req_func(request, df, html, *args):
         if (html == 'test_block.html'):
             output = total_load_on_systems_output(df)
         if (html == 'usage_efficiency_report_output.html'):
-            output = usage_efficiency_report(df, df1, df2)
+            output = usage_efficiency_report(df, df1)
         if (html == 'quality_report_output.html'):
             output = accuarcy_quality_report(df)
         if (html == 'overall_efficiency_output.html'):
@@ -296,13 +274,13 @@ def output_req_func(request, df, html, *args):
         dict_ = output.reset_index().to_dict(orient ='records')
         if ((html == 'daily_report.html') | (html == 'usage_efficiency_report_output.html') | (html == 'overall_efficiency_output.html')):
             dict_ = convert_tuple_dict_to_dict(dict_)
-            print(dict_)
+            # print(dict_)
         # print(dict_)
         json_records = json.dumps(dict_, default=convert_timestamp)
         data = []
         data = json.loads(json_records)
         context = {'d': data}
-        print(context)
+        # print(context)
         return render(request, html, context)
 
 @login_required(login_url='Login')
@@ -347,8 +325,8 @@ def overall_effiency_output(request):
 def usage_efficiency_output(request):
     df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
     df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
-    df2 = pd.DataFrame(list(QualityReportInput.objects.all().values()))
-    return output_req_func(request, df, 'usage_efficiency_report_output.html', df1, df2)
+    # df2 = pd.DataFrame(list(QualityReportInput.objects.all().values()))
+    return output_req_func(request, df, 'usage_efficiency_report_output.html', df1)
 
 def csv_upload(request):
     prompt = {order:"text"}
@@ -366,17 +344,17 @@ def csv_upload(request):
 
     return True
 
-    
+
 def handler400(request,exception):
     return render(request,"handler400.html",status=400)
-    
+
 
 def handler403(request,exception):
     return render(request,"handler403.html",status=403)
-    
+
 def handler404(request,exception):
     print("went through")
     return render(request,"handler404.html",status=404)
-    
+
 def handler500(request):
     return render(request,"handler500.html",status=500)

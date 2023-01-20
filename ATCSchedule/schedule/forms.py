@@ -38,6 +38,7 @@ class dailyMachineHoursForm(ModelForm):
     machine = forms.ChoiceField(choices = machine_name_choice,widget=forms.Select(attrs={'style': 'width:100px','id':'machine'}))
     machine_name = forms.ChoiceField(choices = machines_choice,widget=forms.Select(attrs={'style': 'width:100px','id':'machine_id'}))
     num_of_hours = forms.IntegerField(widget=forms.NumberInput(attrs={'style': 'width:100px'}))
+    status = forms.CharField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
     daily_date = forms.DateField(widget=forms.DateInput(attrs={'style': 'width:100px'}))
     class Meta:
         model  =  DailyMachineHoursInput

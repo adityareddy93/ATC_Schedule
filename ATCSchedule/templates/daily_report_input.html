@@ -102,6 +102,7 @@
             <th>Machine</th>
             <th>Machine Name</th>
             <th>Number of Hours</th>
+            <th>Status</th>
             <th>Daily Date</th>
           </tr>
             <tr>
@@ -112,6 +113,7 @@
                 <td>{{form.machine}}</td>
                 <td>{{form.machine_name}}</td>
                 <td>{{form.num_of_hours}}</td>
+                <td>{{form.status}}</td>
                 <td>{{form.daily_date}}</td>
             </tr>
             </table>
@@ -132,6 +134,7 @@
         <th>Machine</th>
         <th>Machine Name</th>
         <th>Number of Hours</th>
+        <th>Status</th>
         <th>Daily Date</th>
       </tr>
         {% for i in d %}
@@ -143,6 +146,7 @@
             <td class='sub'>{{i.machine}}</td>
             <td class='sub'>{{i.machine_name}}</td>
             <td class='sub'>{{i.num_of_hours}}</td>
+            <td class='sub'>{{i.status}}</td>
             <td class='sub'>{{i.daily_date}}</td>
         </tr>
         {% endfor %}

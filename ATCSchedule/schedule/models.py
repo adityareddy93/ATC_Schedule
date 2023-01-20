@@ -32,8 +32,8 @@ class DailyMachineHoursInput(models.Model):
     machine = models.CharField('Machine', max_length = 200,blank=True)
     machine_name = models.CharField('Machine Name', max_length = 200,blank=True)
     num_of_hours = models.IntegerField('Number of Hours',blank=True,null=True)
+    status = models.CharField('Status', max_length = 200,blank=True)
     daily_date = models.DateField('Daily Date',blank=True,null=True)
-
     class Meta():
         db_table = "DailyMachineHoursInput"
 
@@ -58,4 +58,3 @@ class QualityReportInput(models.Model):
 
     def __str__(self):
         return str(self.insertion_date)+' '+ self.tool_name
-
