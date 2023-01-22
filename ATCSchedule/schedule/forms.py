@@ -3,7 +3,7 @@ from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import TotalLoadOnSystemsInput, DailyMachineHoursInput, QualityReportInput
-from .constants import Unit_choice, machines_choice, machine_name_choice
+from .constants import Unit_choice, machines_choice, machine_name_choice, status_choice
 #widget
 class ContactForm(forms.Form):
     name = forms.CharField()
@@ -38,7 +38,7 @@ class dailyMachineHoursForm(ModelForm):
     machine = forms.ChoiceField(choices = machine_name_choice,widget=forms.Select(attrs={'style': 'width:100px','id':'machine'}))
     machine_name = forms.ChoiceField(choices = machines_choice,widget=forms.Select(attrs={'style': 'width:100px','id':'machine_id'}))
     num_of_hours = forms.IntegerField(widget=forms.NumberInput(attrs={'style': 'width:100px'}))
-    status = forms.CharField(widget=forms.TextInput(attrs={'style': 'width:100px'}))
+    status = forms.ChoiceField(choices = status_choice,widget=forms.Select(attrs={'style': 'width:100px','id':'department'}))
     daily_date = forms.DateField(widget=forms.DateInput(attrs={'style': 'width:100px'}))
     class Meta:
         model  =  DailyMachineHoursInput

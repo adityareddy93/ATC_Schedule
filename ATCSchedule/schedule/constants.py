@@ -7,6 +7,12 @@ Unit_choice=(
         ("unit 4","unit 4"),
     )
 
+status_choice=(
+        (" "," "),
+        ("In Progress","In Progress"),
+        ("Completed","Completed"),
+    )
+
 # Machine choice for table input
 #2
 machines_choice= (

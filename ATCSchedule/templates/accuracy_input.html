@@ -22,48 +22,48 @@
       padding: 3px;
       font-family: Arial, Helvetica, sans-serif;
     }
-    
+
     input.a {
       position: absolute;
       right: 350px;
       padding: 3px;
       font-family: Arial, Helvetica, sans-serif;
     }
-    
-    
+
+
     button.sub {
       position: absolute;
       right: 280px;
       padding: 3px;
       font-family: Arial, Helvetica, sans-serif;
     }
-    
+
     #center {font-weight: bold;}
-    
+
     #customers {
       font-family: Arial, Helvetica, sans-serif;
       border-collapse: collapse;
       width: 98%;
-    
-    
+
+
     }
     #customers td {
       padding: 15px;
         border: 2px solid #f2f2f2;
         border-radius: 5px;
     }
-    
+
     #customers th {
       border: 2px solid #ddd;
       padding: 8px;
       border-radius: 5px
     }
-    
+
     #customers tr:nth-child(even){background-color: #ddd;}
-    
+
     #customers tr.sub:hover {background-color: olive;}
     #customers td.sub:hover {background-color: lightseagreen;}
-    
+
     #customers th {
       padding-top: 12px;
       padding-bottom: 12px;
@@ -74,14 +74,15 @@
       font-size: 18px;
     }
     </style>
-    
-    
+
+
     {% extends 'nav_bar.html' %}
     {% block mycontent %}
         {% if submit %}
         Form Submitted Successfully
         {% else %}
     <h2> &nbsp;&nbsp;&nbsp;Quality Report </h2>
+    <h4> &nbsp;&nbsp;&nbsp;Note: Rejects/Rework hours for the tool. </h4>
     <center>
       <form action = "" method="post" enctype="multipart/form-data">
         {% csrf_token %}
@@ -90,7 +91,7 @@
       </form>
     </center>>
     <center>
-    
+
       <form action = "" method="post" enctype="multipart/form-data">
             <table id="customers">
         {% csrf_token %}
@@ -99,12 +100,12 @@
             <th>Tool No</th>
             <th>Tool Name</th>
             <th>Insert</th>
-            <th>Turning (µm)</th>
-            <th>Milling (µm)</th>
-            <th>EDM (µm)</th>
-            <th>Wire Cut (µm)</th>
+            <th>Turning (hrs)</th>
+            <th>Milling (hrs)</th>
+            <th>EDM (hrs)</th>
+            <th>Wire Cut (hrs)</th>
             <th>No. of Rejects</th>
-            <th>Insertion Date</th>
+            <th>Insertion date</th>
           </tr>
             <tr>
                 <td>{{form.unit}}</td>
@@ -121,24 +122,24 @@
             </table>
     <br>
     <button class="button" type="submit" value= "submit">Submit</button>
-    
+
     </form>
     </center>
     <br>
     <center>
     <table id="customers">
-    
+
       <tr>
         <th>unit</th>
         <th>Tool No</th>
         <th>Tool Name</th>
         <th>Insert</th>
-        <th>Turning (µm)</th>
-        <th>Milling (µm)</th>
-        <th>EDM (µm)</th>
-        <th>Wire Cut (µm)</th>
+        <th>Turning (hrs)</th>
+        <th>Milling (hrs)</th>
+        <th>EDM (hrs)</th>
+        <th>Wire Cut (hrs)</th>
         <th>No. of Rejects</th>
-        <th>Insertion Date</th>
+        <th>Insertion date</th>
       </tr>
         {% for i in d %}
         <tr class='sub'>
@@ -154,10 +155,9 @@
             <td class='sub'>{{i.insertion_date}}</td>
         </tr>
         {% endfor %}
-    
+
     </table>
     </center>
-    
+
         {% endif %}
     {% endblock %}
-    

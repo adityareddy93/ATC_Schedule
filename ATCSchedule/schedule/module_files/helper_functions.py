@@ -95,9 +95,9 @@ def cal_dates(df):
 
 # Calculate forcast date for total load on systems.
 def forcast_tool_output(df):
-    if (df.empty):
-        return pd.DataFrame()
-
+    # if (!(df)) {
+    #     return pd.DataFrame()
+    # }
     df = df.drop_duplicates(['unit', "tool_no", "tool_name", "machine", "insert"])
 
     df["tool_name"] = df['tool_name'].str.lower()
@@ -333,8 +333,6 @@ def total_load_on_systems_output(total_load_on_systems_input):
 
     total_load_on_systems_output = forcast_tool_output(total_load_on_systems_input)
     # print(total_load_on_systems_output)
-    # actual_start_date_df = total_load_on_systems_output[['tool_info', 'actual_start_date']].drop_duplicates(subset = ['tool_info'])
-
     # Cal dataframe with min of actual start date
     total_load_start_date = total_load_on_systems_output[
         ["unit", "tool_info", "actual_start_date"]]
@@ -349,12 +347,8 @@ def total_load_on_systems_output(total_load_on_systems_input):
 
 
     total_load_completion_date['completion_date_with_out_buffer'] = pd.to_datetime(total_load_completion_date.completion_date_with_out_buffer, format='%Y-%m-%d %H:%M:%S')
-    # total_load_on_systems_output["completion_date_with_out_buffer"] = total_load_on_systems_output["completion_date_with_out_buffer"]check_weekend
-    # total_load_on_systems_output = total_load_on_systems_output.loc[total_load_on_systems_output.groupby('unit', 'tool_info').completion_date_with_out_buffer.idxmax()]
     total_load_completion_date = total_load_completion_date.loc[total_load_completion_date.groupby(['unit', 'tool_info']).completion_date_with_out_buffer.idxmax()]
     # End logic to give the max date of machine tools.
-    # total_load_on_systems_output = total_load_on_systems_output[total_load_on_systems_output.groupby('tool_info').completion_date_with_out_buffer.transform('max') == total_load_on_systems_output['completion_date_with_out_buffer']]
-    # df = total_load_on_systems_output.groupby(['unit', 'tool_info'])[['completion_date_with_out_buffer']].max().reset_index(drop=True)
     merged_df = pd.merge(total_load_start_date, total_load_completion_date,on=['unit', 'tool_info'],how='inner')
 
     # print("*************************************")
@@ -369,39 +363,42 @@ def usage_efficiency_report(total_load_input, daily_report_input, *args):
     if ((total_load_input.empty) or (daily_report_input.empty)):
         return pd.DataFrame()
 
-    # ---------------------------------------------88**********************_-------------------------------------------------------------
     daily_df = daily_report_output(total_load_input, daily_report_input, 'DAILY_REPORT')
     if (daily_df.empty):
         return pd.DataFrame()
-    # print("*********************************************")
-    # print(daily_df)
+    #
     daily_df_ = daily_df[daily_df["status"] == 'completed']
-    # daily_df["binary_status"] = 1
-    daily_df_ = daily_df_.groupby(['unit', 'tool_info', 'machine'])['status'].count().reset_index()
 
-    daily_df_ = daily_df_[daily_df_['status'] == 2]
+    daily_df_ = daily_df_.groupby(['unit', 'tool_info'])['status'].count().reset_index()
 
+    daily_df_ = daily_df_[daily_df_['status'] == 4]
+
+    # print(daily_df_)
     if (daily_df_.empty):
         return pd.DataFrame()
 
-    # print(daily_df)
-    # daily_df = daily_df[daily_df["count"]]
-    # daily_df = daily_df.loc[daily_df.groupby(['unit', 'tool_info', 'machine']).status.eq('completed')]
-    # print(daily_df)
+
+    result_df = pd.merge(daily_df_[["unit", "tool_info"]], daily_df, how='inner', on=["unit", "tool_info"])
+
+    if (result_df.empty):
+        return pd.DataFrame()
+
     if (args):
         for str in args:
             if (str == 'EFFICIENCY'):
-                return daily_df
+                return result_df
             else:
                 break
 
-    daily_df["tool_info"] = daily_df["unit"] + ', ' + daily_df["tool_info"]
-    daily_df['_ID'] = daily_df['tool_info'] + daily_df['machine']
-    daily_df['unique_id'] = pd.factorize(daily_df['_ID'])[0]
+    # print(result_df)
+
+    result_df["tool_info"] = result_df["unit"] + ', ' + result_df["tool_info"]
+    result_df['_ID'] = result_df['tool_info'] + result_df['machine']
+    result_df['unique_id'] = pd.factorize(result_df['_ID'])[0]
     # print(merged_df_)
-    # daily_df = pd.merge(daily_df_, daily_df, how='inner', on=["unit", "tool_info", "machine"])
+    # daily_df = pd.merge(daily_df_, daily_df, how='inner', on=["unit", "tool_info"])
     # print(daily_df)
-    pivoted_df = daily_df.pivot(index=['unique_id', 'tool_info'], columns='machine', values=["estimated_hours", "num_of_hours", "max_daily_date"]).reset_index()
+    pivoted_df = result_df.pivot(index=['tool_info'], columns='machine', values=["estimated_hours", "num_of_hours", "max_daily_date"]).reset_index()
     pivoted_df.columns.name=None
     pivoted_df = pivoted_df.fillna(0)
 
@@ -427,23 +424,6 @@ def accuarcy_quality_report(quality_report_input, *args):
 
     quality_report_input['estimated_cost'] = quality_report_input['num_of_rejects'] * 2000
 
-    # print(quality_report_input)
-    # if (args):
-    #     for str_arg in args:
-    #         if str_arg == 'QUALITY_REPORT':
-    #             # quality_report_input = quality_report_input[[]]
-    #             quality_report_input = pd.melt(quality_report_input, id_vars=["unit", "tool_no", "tool_name", "insert", "num_of_rejects"],
-    #                 var_name="machine",
-    #                 value_name="accuracy")
-
-    #             print("**************^^^^^^^^^^^^^^^^^^^^###########################")
-    #             print(quality_report_input)
-    #             print("**************^^^^^^^^^^^^^^^^^^^^###########################")
-    #             # quality_report_input['accuracy'] = quality_report_input['accuracy'].astype(str).astype(int)
-    #             dff = quality_report_input.groupby(["unit", "tool_info", "machine"], sort=False)[['num_of_rejects', 'estimated_cost']].sum().reset_index()
-    #             return dff[["tool_info", "machine", "num_of_rejects"]]
-    #         else:
-    #             break
     quality_report_input['tool_info'] = quality_report_input['tool_no'] + " " + quality_report_input['tool_name']
     dff = quality_report_input.groupby(["unit", "tool_info"], sort=False)[['num_of_rejects', 'estimated_cost']].sum().reset_index()
 
@@ -460,21 +440,15 @@ def overall_efficiency_report(total_load_input, daily_report_input, quality_repo
     if ((total_load_input.empty) or (daily_report_input.empty) or (quality_report_input.empty)):
         return pd.DataFrame()
 
-    # grouped_daily_df = daily_report_input.groupby(["unit", "tool_no", "tool_name", "insert"], sort=False)[['num_of_hours']].sum().reset_index()
-    # print(grouped_daily_df)
-
-    # grouped_total_df = total_load_input.groupby(["unit", "tool_no", "tool_name"], sort=False)[['estimated_hours']].sum().reset_index()
-    # print(grouped_total_df)
-    # total_load_df = forcast_tool_output(total_load_input)
     quality_report_input = accuarcy_quality_report(quality_report_input)
-
-    # **************^^^^^^^^^^^^^^^^^^^^^^^^^^^*****************************************
 
     # daily_report_df = daily_report_output(total_load_input, daily_report_input, 'USAGE_EFFICIENCY')
     usage_df = usage_efficiency_report(total_load_input, daily_report_input, 'EFFICIENCY')
 
     if (usage_df.empty):
         return pd.DataFrame()
+
+    # print(usage_df)
     usage_df["overall_efficiency"] = round((usage_df["estimated_hours"] * 100)/ usage_df["num_of_hours"])
     efficiency_with_rejects_df = pd.merge(usage_df, quality_report_input, how='left', on=["unit", "tool_info"])
 
@@ -482,67 +456,11 @@ def overall_efficiency_report(total_load_input, daily_report_input, quality_repo
     efficiency_with_rejects_df['_ID'] = efficiency_with_rejects_df['tool_info'] + efficiency_with_rejects_df['machine']
     efficiency_with_rejects_df['unique_id'] = pd.factorize(efficiency_with_rejects_df['_ID'])[0]
 
-    pivoted_df = efficiency_with_rejects_df.pivot(index=['unique_id', 'tool_info'], columns='machine', values=["overall_efficiency", "num_of_rejects"]).reset_index()
+    pivoted_df = efficiency_with_rejects_df.pivot(index=['tool_info'], columns='machine', values=["overall_efficiency", "num_of_rejects"]).reset_index()
     pivoted_df.columns.name=None
     pivoted_df = pivoted_df.fillna(0)
-    # print("*******************************")
-    # print(pivoted_df)
-    # print("*******************************")
 
     return pivoted_df
-    # **************^^^^^^^^^^^^^^^^^^^^^^^^^^^*****************************************
-
-    # daily_report = daily_report_output(total_load_input, daily_report_input, 'DAILY_REPORT')
-    #
-    # if (daily_report.empty):
-    #     return pd.DataFrame()
-    #
-    # daily_report['tool_info'] = daily_report['unit'] + ", " + daily_report['tool_info']
-    #
-    # # print(daily_report)
-    #
-    # df_with_estimated_hours = daily_report[["tool_info", "insert", "machine", "estimated_hours"]]
-    # df_with_estimated_hours = df_with_estimated_hours.drop_duplicates(subset=["tool_info", "insert", "machine"]).reset_index().copy()
-    # grouped_estimated = df_with_estimated_hours.groupby(["tool_info", "machine"], sort=False)[['estimated_hours']].sum().reset_index()
-    #
-    # df_with_rest = daily_report[["tool_info", "machine", "num_of_hours"]]
-    # grouped_ = df_with_rest.groupby(["tool_info", "machine"], sort=False)[['num_of_hours']].sum().reset_index()
-    #
-    # merged_estimated_daily_df = pd.merge(grouped_estimated, grouped_, how='inner', on=["tool_info", "machine"])
-    #
-    # merged_estimated_daily_df["balance_hours_as_on_today"] = merged_estimated_daily_df["estimated_hours"] - merged_estimated_daily_df["num_of_hours"]
-    #
-    # merged_estimated_daily_df = merged_estimated_daily_df.apply(balance_hour_validation, axis=1)
-    #
-    # if (args):
-    #     for str in args:
-    #         if str == 'USAGE_EFFICIENCY':
-    #             return merged_estimated_daily_df
-    #         else:
-    #             break
-    #
-    # if (merged_estimated_daily_df['balance_hours_as_on_today'] == 0).all():
-    #     filtered_df = merged_estimated_daily_df
-    # else:
-    #     return pd.DataFrame()
-    #
-    # filtered_df = merged_estimated_daily_df
-    # # print(grouped_)
-    # # filtered_df = daily_report.where(daily_report["balance_hours_as_on_today"] == 0).dropna()
-    # grouped_overall_df = filtered_df.groupby(["tool_info", "machine"], sort=False)[['estimated_hours', 'num_of_hours']].sum().reset_index()
-    #
-    # grouped_overall_df["overall_efficiency"] = round((grouped_overall_df["estimated_hours"] * 100)/ grouped_overall_df["num_of_hours"])
-    #
-    # quality_report_input["tool_info"] = quality_report_input["unit"] + ', ' + quality_report_input["tool_info"]
-    #
-    # efficiency_with_rejects_df = pd.merge(grouped_overall_df, quality_report_input, how='left', on=["tool_info"])
-    #
-    # efficiency_with_rejects_df = efficiency_with_rejects_df[["tool_info", "machine", "overall_efficiency", "num_of_rejects"]]
-    #
-    # pivoted_df = efficiency_with_rejects_df.pivot_table(index='tool_info', columns='machine', values=["overall_efficiency", "num_of_rejects"]).reset_index()
-    # pivoted_df.columns.name=None
-    #
-    # return pivoted_df
 
 def daily_report_output(total_load_input, daily_report, *args):
 
@@ -580,9 +498,6 @@ def daily_report_output(total_load_input, daily_report, *args):
 
     # To get the maximun daily date dataframe
     daily_date_group_df = daily_date_group_df.loc[daily_date_group_df.groupby(['unit', 'tool_info', 'machine']).daily_date.idxmax()]
-    # daily_date_group_df = daily_date_group_df["daily_date"].max()
-    # print("&&&&&&&&*************^^^^^^^^^^^^^^^^^^^^^")
-    # print(daily_date_group_df)
     # Output latest daily record for each unit, tool and machine
 
     daily_date_group_df = daily_date_group_df.rename(columns = {"num_of_hours": "max_date_grouped_daily_hours",
@@ -601,11 +516,6 @@ def daily_report_output(total_load_input, daily_report, *args):
     if (args):
         for str_report in args:
             if str_report == 'DAILY_REPORT':
-                # print("here")
-                # completed_status_df = merged_df_.groupby(["unit", "tool_info", "machine"]).apply(lambda x: (x=='completed'))
-                # completed_status_df = merged_df_.groupby(["unit", "tool_info", "machine"]).status.nunique().eq('completed')
-                # print(completed_status_df)
-                # merged_df_ = merged_df_.groupby(["unit", "tool_info", "machine"]).filter(lambda x: len(x) >= 5)
                 return merged_df_
             else:
                 break
@@ -613,11 +523,9 @@ def daily_report_output(total_load_input, daily_report, *args):
     if (merged_df_.empty):
         return pd.DataFrame()
 
-
-    # print(merged_df_)
     merged_df_["balance_hours_as_on_today"] = merged_df_["estimated_hours"] - merged_df_["num_of_hours"]
     merged_df_ = merged_df_.apply(balance_hour_validation, axis=1)
-    # print(merged_df_)
+
     merged_df_ = merged_df_[['unit', 'tool_info', 'machine', 'actual_machine_start_date', 'max_date_grouped_daily_hours', 'max_daily_date', 'balance_hours_as_on_today']]
     # To show the latest date daily report results
     merged_df_ = merged_df_.loc[merged_df_.groupby(['unit', 'tool_info', 'machine']).max_daily_date.idxmax()]
@@ -626,7 +534,7 @@ def daily_report_output(total_load_input, daily_report, *args):
     merged_df_['_ID'] = merged_df_['tool_info'] + merged_df_['machine']
     merged_df_['unique_id'] = pd.factorize(merged_df_['_ID'])[0]
     # print(merged_df_)
-    pivoted_df = merged_df_.pivot(index=['unique_id', 'tool_info'], columns='machine', values=["max_date_grouped_daily_hours", "balance_hours_as_on_today", "actual_machine_start_date"]).reset_index()
+    pivoted_df = merged_df_.pivot(index=['tool_info'], columns='machine', values=["max_date_grouped_daily_hours", "balance_hours_as_on_today", "actual_machine_start_date"]).reset_index()
     pivoted_df.columns.name=None
     pivoted_df = pivoted_df.fillna(0)
 
