@@ -171,7 +171,7 @@ def input_page_req_func(request, input_form, submit_req_str, df, html):
                 if 'submit' in request.GET:
                     submit=True
     # df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
-    print(df)
+    # print(df.shape[0])
     df = df.loc[::-1]
     def convert_timestamp(item_date_object):
         if isinstance(item_date_object, (datetime.date, datetime.datetime)):
