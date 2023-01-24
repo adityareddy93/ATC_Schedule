@@ -359,20 +359,20 @@ def total_load_on_systems_output(total_load_on_systems_input):
     total_load_on_systems_output = forcast_tool_output(total_load_on_systems_input)
     # Cal dataframe with min of actual start date
     total_load_start_date = total_load_on_systems_output[
-        ["unit", "tool_info", "actual_start_date"]]
+        ["unit", "tool_info", "actual_start_date"]].copy()
 
     total_load_start_date['actual_start_date'] = pd.to_datetime(total_load_start_date.actual_start_date, format='%Y-%m-%d')
     total_load_start_date = total_load_start_date.loc[total_load_start_date.groupby(['unit', 'tool_info']).actual_start_date.idxmin()]
 
     # calulate another df with max of complete date with out buffer
     total_load_completion_date = total_load_on_systems_output[
-        ["unit", "tool_info", "completion_date_with_out_buffer"]]
+        ["unit", "tool_info", "completion_date_with_out_buffer"]].copy()
     total_load_completion_date['completion_date_with_out_buffer'] = pd.to_datetime(total_load_completion_date.completion_date_with_out_buffer, format='%Y-%m-%d %H:%M:%S')
     total_load_completion_date = total_load_completion_date.loc[total_load_completion_date.groupby(['unit', 'tool_info']).completion_date_with_out_buffer.idxmax()]
 
 
     # calulate df with max of complete date with  buffer
-    total_load_completion_date_wb = total_load_on_systems_output[["unit", "tool_info", "completion_date_with_buffer"]]
+    total_load_completion_date_wb = total_load_on_systems_output[["unit", "tool_info", "completion_date_with_buffer"]].copy()
     total_load_completion_date_wb['completion_date_with_buffer'] = pd.to_datetime(total_load_completion_date_wb.completion_date_with_buffer, format='%Y-%m-%d %H:%M:%S')
 
     total_load_completion_date_wb = total_load_completion_date_wb.loc[total_load_completion_date_wb.groupby(['unit', 'tool_info']).completion_date_with_buffer.idxmax()]
@@ -383,7 +383,7 @@ def total_load_on_systems_output(total_load_on_systems_input):
     #print(merged_df)
     merged_df['completion_date_with_out_buffer_week'] = 'Week '+merged_df['completion_date_with_out_buffer'].dt.isocalendar().week.astype(str)
     merged_df['completion_date_with_buffer_week'] = 'Week '+merged_df['completion_date_with_out_buffer'].dt.isocalendar().week.astype(str)
-    print(merged_df)
+    # print(merged_df)
 
     return merged_df
 
@@ -441,9 +441,16 @@ def accuarcy_quality_report(quality_report_input, *args):
     if (isempty):
         return pd.DataFrame()
 
-    quality_report_input = quality_report_input.drop_duplicates(['unit', "tool_no", "tool_name"])
+    quality_report_input = quality_report_input.drop_duplicates(['unit', "tool_no", "tool_name", "machine"])
+    # print(quality_report_input.dtypes)
     # Convert input to lower case
-    quality_report_input = quality_report_input.applymap(lambda x: x.lower() if type(x) == str else x)
+    quality_report_input["insert"] = quality_report_input['insert'].str.lower()
+    quality_report_input["tool_name"] = quality_report_input['tool_name'].str.lower()
+    quality_report_input["unit"] = quality_report_input['unit'].str.lower()
+    quality_report_input["machine"] = quality_report_input['machine'].str.lower()
+
+    # print(quality_report_input)
+    # quality_report_input = quality_report_input.applymap(lambda x: x.lower() if type(x) == str else x)
     quality_report_input = quality_report_input.drop('id', axis=1)
     # quality_report_input = quality_report_input.melt(id_vars=["unit", "tool_no", "tool_name", "insert", "num_of_rejects", "insertion_date"],
     #     var_name="machine",
@@ -454,6 +461,15 @@ def accuarcy_quality_report(quality_report_input, *args):
     quality_report_input['estimated_cost'] = quality_report_input['num_of_rejects'] * 2000
 
     quality_report_input['tool_info'] = quality_report_input['tool_no'] + " " + quality_report_input['tool_name']
+
+    if (args):
+        for str in args:
+            if (str == 'OVERALL_EFFICIENCY'):
+                quality_report_input = quality_report_input.groupby(["unit", "tool_info", "machine"], sort=False)[['num_of_rejects', 'estimated_cost']].sum().reset_index()
+                return quality_report_input
+            else:
+                break
+            break
     dff = quality_report_input.groupby(["unit", "tool_info"], sort=False)[['num_of_rejects', 'estimated_cost']].sum().reset_index()
 
     # dff['quality_hours_pk'] = dff['unit'] + "_" + dff['tool_info'] + "_" + dff['machine']
@@ -469,8 +485,9 @@ def overall_efficiency_report(total_load_input, daily_report_input, quality_repo
     if ((total_load_input.empty) or (daily_report_input.empty) or (quality_report_input.empty)):
         return pd.DataFrame()
 
-    quality_report_input = accuarcy_quality_report(quality_report_input)
+    quality_report_input = accuarcy_quality_report(quality_report_input, 'OVERALL_EFFICIENCY')
 
+    print(quality_report_input)
     # daily_report_df = daily_report_output(total_load_input, daily_report_input, 'USAGE_EFFICIENCY')
     usage_df = usage_efficiency_report(total_load_input, daily_report_input, 'EFFICIENCY')
 
@@ -479,7 +496,7 @@ def overall_efficiency_report(total_load_input, daily_report_input, quality_repo
 
     # print(usage_df)
     usage_df["overall_efficiency"] = round((usage_df["estimated_hours"] * 100)/ usage_df["num_of_hours"])
-    efficiency_with_rejects_df = pd.merge(usage_df, quality_report_input, how='left', on=["unit", "tool_info"])
+    efficiency_with_rejects_df = pd.merge(usage_df, quality_report_input, how='left', on=["unit", "tool_info", "machine"])
 
     efficiency_with_rejects_df["tool_info"] = efficiency_with_rejects_df["unit"] + ', ' + efficiency_with_rejects_df["tool_info"]
     efficiency_with_rejects_df['_ID'] = efficiency_with_rejects_df['tool_info'] + efficiency_with_rejects_df['machine']
