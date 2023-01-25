@@ -98,8 +98,17 @@ def forcast_tool_output(df):
     # if (!(df)) {
     #     return pd.DataFrame()
     # }
+<<<<<<< HEAD
     #df['insertion_date'] = pd.to_datetime(df['insertion_date'])
     #df = df.sort_values(by='insertion_date').reset_index()
+=======
+    # print(df)
+
+    #  Remove \d+ for match digits after decimal for eg: 4.0 -> 4
+    df['tool_no'] = df['tool_no'].astype(str).replace('\.\d+', '', regex=True)
+    # print(df)
+    # pd.set_option('precision', 0)
+>>>>>>> 3f357e378b589e0299bbd554c643529a3de3ad5b
     df = df.drop_duplicates(['unit', "tool_no", "tool_name", "machine", "insert"])
 
     df["tool_name"] = df['tool_name'].str.lower()
@@ -172,20 +181,20 @@ def forcast_tool_output(df):
                     week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'actual_start_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
                     if week_endCheck.shape[0] == 0:
                         u1_tur = end_date.values[0]
-                        
-                        
-                        
+
+
+
                         df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
-                        
+
                         df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
                     else:
                         end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
                         u1_tur = end_date
-                        
-                        
-                        
+
+
+
                         df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
-                        
+
                         df.at[i,'completion_date_with_out_buffer'] = end_date
             elif df.loc[i,'machine']=='milling':
                 if u1_mil < df.loc[i,'insertion_date']:
@@ -198,20 +207,20 @@ def forcast_tool_output(df):
                     week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'insertion_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
                     if week_endCheck.shape[0] == 0:
                         u1_mil = end_date.values[0]
-                        
-                        
-                        
+
+
+
                         df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
-                        
+
                         df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
                     else:
                         end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
                         u1_mil = end_date
-                        
-                        
-                        
+
+
+
                         df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
-                        
+
                         df.at[i,'completion_date_with_out_buffer'] = end_date
                 else:
 
@@ -226,20 +235,20 @@ def forcast_tool_output(df):
 
                     if week_endCheck.shape[0] == 0:
                         u1_mil = end_date.values[0]
-                        
-                        
-                        
+
+
+
                         df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
-                        
+
                         df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
                     else:
                         end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
                         u1_mil = end_date
-                        
-                        
-                        
+
+
+
                         df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
-                        
+
                         df.at[i,'completion_date_with_out_buffer'] = end_date
             elif df.loc[i,'machine']=='edm':
                 if u1_edm < df.loc[i,'insertion_date']:
@@ -252,19 +261,19 @@ def forcast_tool_output(df):
                     week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'insertion_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
                     if week_endCheck.shape[0] == 0:
                         u1_edm = end_date.values[0]
-                        
-                        
+
+
                         df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
-                        
+
                         df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
                     else:
                         end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
                         u1_edm = end_date
-                        
-                        
-                        
+
+
+
                         df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
-                        
+
                         df.at[i,'completion_date_with_out_buffer'] = end_date
                 else:
                     hours = df_ref.loc[df_ref['date'] == u1_edm,'Hours']
@@ -276,22 +285,22 @@ def forcast_tool_output(df):
                     week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'actual_start_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
                     if week_endCheck.shape[0] == 0:
                         u1_edm = end_date.values[0]
-                        
 
-                        
-                        
+
+
+
                         df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
-                        
+
                         df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
                     else:
                         end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
                         u1_edm = end_date
-                        
 
-                        
-                        
+
+
+
                         df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
-                        
+
                         df.at[i,'completion_date_with_out_buffer'] = end_date
             elif df.loc[i,'machine']=='wire_cut':
                 if u1_wc < df.loc[i,'insertion_date']:
@@ -304,22 +313,22 @@ def forcast_tool_output(df):
                     week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'insertion_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
                     if week_endCheck.shape[0] == 0:
                         u1_wc = end_date.values[0]
-                        
 
-                        
-                        
+
+
+
                         df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
-                        
+
                         df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
                     else:
                         end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
                         u1_wc = end_date
-                        
 
-                        
-                        
+
+
+
                         df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
-                        
+
                         df.at[i,'completion_date_with_out_buffer'] = end_date
                 else:
 
@@ -359,20 +368,20 @@ def total_load_on_systems_output(total_load_on_systems_input):
     total_load_on_systems_output = forcast_tool_output(total_load_on_systems_input)
     # Cal dataframe with min of actual start date
     total_load_start_date = total_load_on_systems_output[
-        ["unit", "tool_info", "actual_start_date"]]
+        ["unit", "tool_info", "actual_start_date"]].copy()
 
     total_load_start_date['actual_start_date'] = pd.to_datetime(total_load_start_date.actual_start_date, format='%Y-%m-%d')
     total_load_start_date = total_load_start_date.loc[total_load_start_date.groupby(['unit', 'tool_info']).actual_start_date.idxmin()]
 
     # calulate another df with max of complete date with out buffer
     total_load_completion_date = total_load_on_systems_output[
-        ["unit", "tool_info", "completion_date_with_out_buffer"]]
+        ["unit", "tool_info", "completion_date_with_out_buffer"]].copy()
     total_load_completion_date['completion_date_with_out_buffer'] = pd.to_datetime(total_load_completion_date.completion_date_with_out_buffer, format='%Y-%m-%d %H:%M:%S')
     total_load_completion_date = total_load_completion_date.loc[total_load_completion_date.groupby(['unit', 'tool_info']).completion_date_with_out_buffer.idxmax()]
 
 
     # calulate df with max of complete date with  buffer
-    total_load_completion_date_wb = total_load_on_systems_output[["unit", "tool_info", "completion_date_with_buffer"]]
+    total_load_completion_date_wb = total_load_on_systems_output[["unit", "tool_info", "completion_date_with_buffer"]].copy()
     total_load_completion_date_wb['completion_date_with_buffer'] = pd.to_datetime(total_load_completion_date_wb.completion_date_with_buffer, format='%Y-%m-%d %H:%M:%S')
 
     total_load_completion_date_wb = total_load_completion_date_wb.loc[total_load_completion_date_wb.groupby(['unit', 'tool_info']).completion_date_with_buffer.idxmax()]
@@ -383,9 +392,13 @@ def total_load_on_systems_output(total_load_on_systems_input):
     
     merged_df['completion_date_with_out_buffer_week'] = 'Week '+merged_df['completion_date_with_out_buffer'].dt.isocalendar().week.astype(str)
     merged_df['completion_date_with_buffer_week'] = 'Week '+merged_df['completion_date_with_out_buffer'].dt.isocalendar().week.astype(str)
+<<<<<<< HEAD
     merged_df['completion_date_with_out_buffer'] = pd.to_datetime(merged_df['completion_date_with_out_buffer'])
     merged_df = merged_df.sort_values(by='completion_date_with_out_buffer').reset_index()
     print(merged_df.columns)
+=======
+    # print(merged_df)
+>>>>>>> 3f357e378b589e0299bbd554c643529a3de3ad5b
 
     return merged_df
 
@@ -404,7 +417,7 @@ def usage_efficiency_report(total_load_input, daily_report_input, *args):
 
     daily_df_ = daily_df_[daily_df_['status'] == 4]
 
-    print(daily_df_)
+    # print(daily_df_)
     if (daily_df_.empty):
         return pd.DataFrame()
 
@@ -421,19 +434,19 @@ def usage_efficiency_report(total_load_input, daily_report_input, *args):
             else:
                 break
 
-    print(result_df)
+    # print(result_df)
 
     result_df["tool_info"] = result_df["unit"] + ', ' + result_df["tool_info"]
     result_df['_ID'] = result_df['tool_info'] + result_df['machine']
     result_df['unique_id'] = pd.factorize(result_df['_ID'])[0]
-    print(merged_df_)
+    # print(merged_df_)
     # daily_df = pd.merge(daily_df_, daily_df, how='inner', on=["unit", "tool_info"])
-    print(daily_df)
+    # print(daily_df)
     pivoted_df = result_df.pivot(index=['tool_info'], columns='machine', values=["estimated_hours", "num_of_hours", "max_daily_date"]).reset_index()
     pivoted_df.columns.name=None
     pivoted_df = pivoted_df.fillna(0)
 
-    print(pivoted_df)
+    # print(pivoted_df)
     return pivoted_df
 
 
@@ -443,9 +456,16 @@ def accuarcy_quality_report(quality_report_input, *args):
     if (isempty):
         return pd.DataFrame()
 
-    quality_report_input = quality_report_input.drop_duplicates(['unit', "tool_no", "tool_name"])
+    quality_report_input = quality_report_input.drop_duplicates(['unit', "tool_no", "tool_name", "machine"])
+    # print(quality_report_input.dtypes)
     # Convert input to lower case
-    quality_report_input = quality_report_input.applymap(lambda x: x.lower() if type(x) == str else x)
+    quality_report_input["insert"] = quality_report_input['insert'].str.lower()
+    quality_report_input["tool_name"] = quality_report_input['tool_name'].str.lower()
+    quality_report_input["unit"] = quality_report_input['unit'].str.lower()
+    quality_report_input["machine"] = quality_report_input['machine'].str.lower()
+
+    # print(quality_report_input)
+    # quality_report_input = quality_report_input.applymap(lambda x: x.lower() if type(x) == str else x)
     quality_report_input = quality_report_input.drop('id', axis=1)
     # quality_report_input = quality_report_input.melt(id_vars=["unit", "tool_no", "tool_name", "insert", "num_of_rejects", "insertion_date"],
     #     var_name="machine",
@@ -456,6 +476,15 @@ def accuarcy_quality_report(quality_report_input, *args):
     quality_report_input['estimated_cost'] = quality_report_input['num_of_rejects'] * 2000
 
     quality_report_input['tool_info'] = quality_report_input['tool_no'] + " " + quality_report_input['tool_name']
+
+    if (args):
+        for str in args:
+            if (str == 'OVERALL_EFFICIENCY'):
+                quality_report_input = quality_report_input.groupby(["unit", "tool_info", "machine"], sort=False)[['num_of_rejects', 'estimated_cost']].sum().reset_index()
+                return quality_report_input
+            else:
+                break
+            break
     dff = quality_report_input.groupby(["unit", "tool_info"], sort=False)[['num_of_rejects', 'estimated_cost']].sum().reset_index()
 
     # dff['quality_hours_pk'] = dff['unit'] + "_" + dff['tool_info'] + "_" + dff['machine']
@@ -471,17 +500,18 @@ def overall_efficiency_report(total_load_input, daily_report_input, quality_repo
     if ((total_load_input.empty) or (daily_report_input.empty) or (quality_report_input.empty)):
         return pd.DataFrame()
 
-    quality_report_input = accuarcy_quality_report(quality_report_input)
+    quality_report_input = accuarcy_quality_report(quality_report_input, 'OVERALL_EFFICIENCY')
 
+    print(quality_report_input)
     # daily_report_df = daily_report_output(total_load_input, daily_report_input, 'USAGE_EFFICIENCY')
     usage_df = usage_efficiency_report(total_load_input, daily_report_input, 'EFFICIENCY')
 
     if (usage_df.empty):
         return pd.DataFrame()
 
-    print(usage_df)
+    # print(usage_df)
     usage_df["overall_efficiency"] = round((usage_df["estimated_hours"] * 100)/ usage_df["num_of_hours"])
-    efficiency_with_rejects_df = pd.merge(usage_df, quality_report_input, how='left', on=["unit", "tool_info"])
+    efficiency_with_rejects_df = pd.merge(usage_df, quality_report_input, how='left', on=["unit", "tool_info", "machine"])
 
     efficiency_with_rejects_df["tool_info"] = efficiency_with_rejects_df["unit"] + ', ' + efficiency_with_rejects_df["tool_info"]
     efficiency_with_rejects_df['_ID'] = efficiency_with_rejects_df['tool_info'] + efficiency_with_rejects_df['machine']
@@ -498,13 +528,19 @@ def daily_report_output(total_load_input, daily_report, *args):
     if ((total_load_input.empty) or (daily_report.empty)):
         return pd.DataFrame()
 
+    #  Remove \d+ for match digits after decimal for eg: 4.0 -> 4
+    daily_report['tool_no'] = daily_report['tool_no'].astype(str).replace('\.\d+', '', regex=True)
+
     # Drop duplicates for daily report if it has same unit, tool info, insert, machine, machine_name and daily_date
     daily_report_input = daily_report.drop_duplicates(subset=["unit", "tool_no", "tool_name", "insert", "machine", "machine_name", "daily_date"]).reset_index().copy()
-
+    # df["tool_no"] = df["tool_no"].astype(str).astype(int)
+    # convert_dict = {'tool_no': int}
+    #
+    # daily_report_input = daily_report_input.astype(convert_dict)
     total_load_on_systems_output = forcast_tool_output(total_load_input)
-
+    # print(total_load_on_systems_output)
     total_load_on_systems_output = total_load_on_systems_output[["unit", "tool_info", "machine", "estimated_hours"]]
-    print(total_load_on_systems_output)
+    # print(total_load_on_systems_output)
 
     # Convert input to lower case
     daily_report_input["insert"] = daily_report_input['insert'].str.lower()
@@ -516,7 +552,7 @@ def daily_report_output(total_load_input, daily_report, *args):
     daily_report_input['tool_info'] = daily_report_input['tool_no'] + " " + daily_report_input['tool_name']
 
     tool_hours_group_df = daily_report_input.groupby(["unit", "tool_info", "machine"], sort=False).num_of_hours.sum().reset_index()
-    print(tool_hours_group_df)
+    # print(tool_hours_group_df)
     daily_date_group_df = daily_report_input.groupby(["unit", "tool_info", "machine", "status", "daily_date"], sort=False).num_of_hours.sum().reset_index()
     # To get the latest date
     # total_load_start_date = total_load_on_systems_output[["unit", "tool_info", "actual_start_date"]]
@@ -536,14 +572,17 @@ def daily_report_output(total_load_input, daily_report, *args):
 
     merged_df_with_max_date = pd.merge(daily_date_group_df, tool_hours_group_df, how='inner', left_on=["unit", "tool_info", "machine"], right_on=["unit", "tool_info", "machine"])
 
-    print(merged_df_with_max_date)
+    # print(merged_df_with_max_date)
     # Adding minimum date of unit, tool info, machine as start date
     merged_df = pd.merge(daily_date_group_min_df, merged_df_with_max_date, how='inner', left_on=["unit", "tool_info", "machine"], right_on=["unit", "tool_info", "machine"])
 
+    # print("Last Merge")
+    # print(total_load_on_systems_output)
+    # print(merged_df)
     # Merge to add estimated hours to daily report
     merged_df_ = pd.merge(total_load_on_systems_output, merged_df, how='inner', left_on=["unit", "tool_info", "machine"], right_on=["unit", "tool_info", "machine"])
 
-    print(merged_df_)
+    # print(merged_df_)
     if (args):
         for str_report in args:
             if str_report == 'DAILY_REPORT':
@@ -560,11 +599,11 @@ def daily_report_output(total_load_input, daily_report, *args):
     merged_df_ = merged_df_[['unit', 'tool_info', 'machine', 'actual_machine_start_date', 'max_date_grouped_daily_hours', 'max_daily_date', 'balance_hours_as_on_today']]
     # To show the latest date daily report results
     merged_df_ = merged_df_.loc[merged_df_.groupby(['unit', 'tool_info', 'machine']).max_daily_date.idxmax()]
-    print(merged_df_)
+    # print(merged_df_)
     merged_df_["tool_info"] = merged_df_["unit"] + ', ' + merged_df_["tool_info"]
     merged_df_['_ID'] = merged_df_['tool_info'] + merged_df_['machine']
     merged_df_['unique_id'] = pd.factorize(merged_df_['_ID'])[0]
-    print(merged_df_)
+    # print(merged_df_)
     pivoted_df = merged_df_.pivot(index=['tool_info'], columns='machine', values=["max_date_grouped_daily_hours", "balance_hours_as_on_today", "actual_machine_start_date"]).reset_index()
     pivoted_df.columns.name=None
     pivoted_df = pivoted_df.fillna(0)
@@ -650,5 +689,3 @@ def cap_value_validation(row):
 
 # def status_validation(row):
 #     row["status"] == 'completed'
-
-

@@ -63,9 +63,16 @@
     <h2>Usage Efficiency Report</h2>
     <form method="POST">
       {% csrf_token %}
-    <center id="center">
-
-    </center>
+    <!-- <center id="center"> -->
+    <!-- Tool Information:&nbsp;&nbsp;<input  type="text"  name="start" id="myDate" value="">&nbsp;&nbsp;&nbsp;&nbsp; -->
+    <!-- To:&nbsp;&nbsp;<input  type="date"  name="end" id="myDate" value="yyyy-mm-dd">&nbsp;&nbsp;&nbsp;&nbsp; -->
+    <!-- <input type="text" name="tool_info" list="unit_with_tool">
+    <datalist id="unit_with_tool">
+      <option value="Boston">
+      <option value="Cambridge">
+    </datalist>
+    <button  onclick="myFunction()">search</button>
+    </center> -->
 
     <br><br>
 
@@ -116,4 +123,10 @@
     </center>
     </form>
     </body>
+    <script>
+    // function myFunction() {
+    //   var x = document.getElementById("myDate").value;
+    //   document.getElementById("demo").innerHTML = x;
+    // }
+    </script>
     {% endblock %}

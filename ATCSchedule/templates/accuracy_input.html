@@ -96,15 +96,13 @@
             <table id="customers">
         {% csrf_token %}
             <tr>
-            <th>unit</th>
+            <th>Unit</th>
             <th>Tool No</th>
             <th>Tool Name</th>
             <th>Insert</th>
-            <th>Turning (hrs)</th>
-            <th>Milling (hrs)</th>
-            <th>EDM (hrs)</th>
-            <th>Wire Cut (hrs)</th>
-            <th>No. of Rejects</th>
+            <th>Machine</th>
+            <th>Deviation (µm)</th>
+            <th>No. of rejects</th>
             <th>Insertion date</th>
           </tr>
             <tr>
@@ -112,10 +110,8 @@
                 <td>{{form.tool_no}}</td>
                 <td>{{form.tool_name}}</td>
                 <td>{{form.insert}}</td>
-                <td>{{form.turning}}</td>
-                <td>{{form.milling}}</td>
-                <td>{{form.edm}}</td>
-                <td>{{form.wire_cut}}</td>
+                <td>{{form.machine}}</td>
+                <td>{{form.deviation}}</td>
                 <td>{{form.num_of_rejects}}</td>
                 <td>{{form.insertion_date}}</td>
             </tr>
@@ -130,15 +126,13 @@
     <table id="customers">
 
       <tr>
-        <th>unit</th>
+        <th>Unit</th>
         <th>Tool No</th>
         <th>Tool Name</th>
         <th>Insert</th>
-        <th>Turning (hrs)</th>
-        <th>Milling (hrs)</th>
-        <th>EDM (hrs)</th>
-        <th>Wire Cut (hrs)</th>
-        <th>No. of Rejects</th>
+        <th>Machine</th>
+        <th>Deviation (µm)</th>
+        <th>No. of rejects</th>
         <th>Insertion date</th>
       </tr>
         {% for i in d %}
@@ -147,10 +141,8 @@
             <td class='sub'>{{i.tool_no}}</td>
             <td class='sub'>{{i.tool_name}}</td>
             <td class='sub'>{{i.insert}}</td>
-            <td class='sub'>{{i.turning}}</td>
-            <td class='sub'>{{i.milling}}</td>
-            <td class='sub'>{{i.edm}}</td>
-            <td class='sub'>{{i.wire_cut}}</td>
+            <td class='sub'>{{i.machine}}</td>
+            <td class='sub'>{{i.deviation}}</td>
             <td class='sub'>{{i.num_of_rejects}}</td>
             <td class='sub'>{{i.insertion_date}}</td>
         </tr>

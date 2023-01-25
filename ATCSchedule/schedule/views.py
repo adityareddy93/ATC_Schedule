@@ -74,15 +74,15 @@ def handle_csv(file, html_page):
                 tool_no = i[1],
                 tool_name= i[2],
                 insert= i[3],
-                turning= i[4],
-                milling= i[5],
-                edm= i[6],
-                wire_cut= i[7],
-                num_of_rejects= i[8],
-                insertion_date= i[9],
+                machine= i[4],
+                # turning= i[4],
+                # milling= i[5],
+                # edm= i[6],
+                # wire_cut= i[7],
+                deviation= i[5],
+                num_of_rejects= i[6],
+                insertion_date= i[7],
             )
-
-
 
 # Create your views here.
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -153,7 +153,7 @@ def input_page_req_func(request, input_form, submit_req_str, df, html):
                 min_ids = [obj['minid'] for obj in min_id]
                 DailyMachineHoursInput.objects.exclude(id__in=min_ids).delete()
             if (html == 'accuracy_input.html'):
-                min_id = QualityReportInput.objects.values('unit', 'tool_no','tool_name','insert').annotate(minid=Min('id'))
+                min_id = QualityReportInput.objects.values('unit', 'tool_no','tool_name','insert', 'machine').annotate(minid=Min('id'))
                 min_ids = [obj['minid'] for obj in min_id]
                 QualityReportInput.objects.exclude(id__in=min_ids).delete()
             min_ids = [obj['minid'] for obj in min_id]
@@ -171,7 +171,7 @@ def input_page_req_func(request, input_form, submit_req_str, df, html):
                 if 'submit' in request.GET:
                     submit=True
     # df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
-    print(df)
+    # print(df.shape[0])
     df = df.loc[::-1]
     def convert_timestamp(item_date_object):
         if isinstance(item_date_object, (datetime.date, datetime.datetime)):
@@ -206,16 +206,47 @@ def accuracy(request):
     df = pd.DataFrame(list(QualityReportInput.objects.all().values()))
     return input_page_req_func(request, accuracyInputForm, '/accuracy?submit=True', df, 'accuracy_input.html')
 
+# Helper function to filter the data with from and to date selection with respective to the output page
+def filter_with_dates(html, start_dt, end_dt, df, *args):
+    if args:
+        if len(args) == 1:
+            df1 = args[0]
+        elif len(args) == 2:
+            df1 = args[0]
+            df2 = args[1]
+    if (html == 'test_block.html'):
+        output = total_load_on_systems_output(df)
+        output = output[(output['actual_start_date']>=start_dt) & (output['actual_start_date']<=end_dt)]
+    # if (html == 'usage_efficiency_report_output.html'):
+    #     output = usage_efficiency_report(df, df1)
+    #     # Searching on latest date which is machine completion date
+    #     output = output[(output['max_daily_date']>=start_dt) & (output['max_daily_date']<=end_dt)]
+    # if (html == 'daily_report.html'):
+    #     output = daily_report_output(df, df1)
+    #     print(output)
+    #     output = output[(output['actual_machine_start_date']>=start_dt) & (output['actual_machine_start_date']<=end_dt)]
+    return output
 # Output functions
 def output_req_func(request, df, html, *args):
+    # Extracting values from *args
+    if args:
+        if len(args) == 1:
+            df1 = args[0]
+        elif len(args) == 2:
+            df1 = args[0]
+            df2 = args[1]
     if request.method =='POST':
         cursor = connection.cursor()
         start_dt = request.POST.get('start')
         print(start_dt)
         end_dt = request.POST.get('end')
         # df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
-        output = total_load_on_systems_output(df)
-        output = output[(output['actual_start_date']>=start_dt) & (output['actual_start_date']<=end_dt)]
+        if args:
+            output = filter_with_dates(html, start_dt, end_dt, df, df1)
+        else:
+            output = filter_with_dates(html, start_dt, end_dt, df)
+        # output = total_load_on_systems_output(df)
+        # output = output[(output['actual_start_date']>=start_dt) & (output['actual_start_date']<=end_dt)]
         def convert_timestamp(item_date_object):
             if isinstance(item_date_object, (datetime.date, datetime.datetime)):
                 return item_date_object.strftime("%Y-%m-%d")
@@ -229,13 +260,6 @@ def output_req_func(request, df, html, *args):
     else:
          # search = TotalLoadOnSystemsInput.objects.all().values()
         # df = pd.DataFrame(list(TotalLoadOnSystemsInput.objects.all().values()))
-        # Extracting values from *args
-        if args:
-            if len(args) == 1:
-                df1 = args[0]
-            elif len(args) == 2:
-                df1 = args[0]
-                df2 = args[1]
 
         # df1 = pd.DataFrame(list(DailyMachineHoursInput.objects.all().values()))
 
