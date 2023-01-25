@@ -98,17 +98,14 @@ def forcast_tool_output(df):
     # if (!(df)) {
     #     return pd.DataFrame()
     # }
-<<<<<<< HEAD
     #df['insertion_date'] = pd.to_datetime(df['insertion_date'])
     #df = df.sort_values(by='insertion_date').reset_index()
-=======
     # print(df)
 
     #  Remove \d+ for match digits after decimal for eg: 4.0 -> 4
     df['tool_no'] = df['tool_no'].astype(str).replace('\.\d+', '', regex=True)
     # print(df)
     # pd.set_option('precision', 0)
->>>>>>> 3f357e378b589e0299bbd554c643529a3de3ad5b
     df = df.drop_duplicates(['unit', "tool_no", "tool_name", "machine", "insert"])
 
     df["tool_name"] = df['tool_name'].str.lower()
@@ -392,13 +389,10 @@ def total_load_on_systems_output(total_load_on_systems_input):
     
     merged_df['completion_date_with_out_buffer_week'] = 'Week '+merged_df['completion_date_with_out_buffer'].dt.isocalendar().week.astype(str)
     merged_df['completion_date_with_buffer_week'] = 'Week '+merged_df['completion_date_with_out_buffer'].dt.isocalendar().week.astype(str)
-<<<<<<< HEAD
     merged_df['completion_date_with_out_buffer'] = pd.to_datetime(merged_df['completion_date_with_out_buffer'])
     merged_df = merged_df.sort_values(by='completion_date_with_out_buffer').reset_index()
     print(merged_df.columns)
-=======
     # print(merged_df)
->>>>>>> 3f357e378b589e0299bbd554c643529a3de3ad5b
 
     return merged_df
 
