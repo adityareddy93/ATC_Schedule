@@ -98,8 +98,6 @@ def forcast_tool_output(df):
     # if (!(df)) {
     #     return pd.DataFrame()
     # }
-    #df['insertion_date'] = pd.to_datetime(df['insertion_date'])
-    #df = df.sort_values(by='insertion_date').reset_index()
     # print(df)
 
     #  Remove \d+ for match digits after decimal for eg: 4.0 -> 4
@@ -111,7 +109,6 @@ def forcast_tool_output(df):
     df["tool_name"] = df['tool_name'].str.lower()
     df["insert"] = df['insert'].str.lower()
     df = df.applymap(lambda x: x.lower() if type(x) == str else x)
-    print(df)
 
     df['tool_info'] = df['tool_no'].astype(str) + " " + df['tool_name'].astype(str)
 
@@ -124,9 +121,8 @@ def forcast_tool_output(df):
     df['buffer_hours'] = df['estimated_hours'] + ((df['estimated_hours']*df['buffer_hours'])/100)
     order = ['turning','milling','edm','wire_cut']
     df['machine'] = pd.Categorical(df['machine'], order)
-    df = df.sort_values(by = ['insertion_date','unit','tool_name','machine']).reset_index()
+    df = df.sort_values(by = ['insertion_date','unit','tool_name','machine'])
     insertion_date = df.drop_duplicates(["unit", "tool_info", "machine"])
-    #print(df)
 
 
     df = df.groupby(["unit", "tool_info", "machine"], sort=False)[['estimated_hours', 'buffer_hours']].sum().reset_index()
@@ -141,8 +137,6 @@ def forcast_tool_output(df):
 
     # return_unit_capacity function returns capacity value.
     df["capacity_day"] = df.apply(lambda x: return_unit_capacity(x['unit'], x['machine']), axis = 1)
-    df['insertion_date'] = pd.to_datetime(df['insertion_date'])
-    df = df.sort_values(by='insertion_date').reset_index()
     df['total_actual_days'] = round(df['estimated_hours'] /df['capacity_day'])
     df['actual_start_date'] = ''
     df['completion_date_with_out_buffer'] = ''
@@ -386,12 +380,9 @@ def total_load_on_systems_output(total_load_on_systems_input):
     merged_df = pd.merge(total_load_start_date, total_load_completion_date,on=['unit', 'tool_info'],how='inner')
     merged_df = pd.merge(merged_df, total_load_completion_date_wb,on=['unit', 'tool_info'],how='inner')
 
-    
+    #print(merged_df)
     merged_df['completion_date_with_out_buffer_week'] = 'Week '+merged_df['completion_date_with_out_buffer'].dt.isocalendar().week.astype(str)
     merged_df['completion_date_with_buffer_week'] = 'Week '+merged_df['completion_date_with_out_buffer'].dt.isocalendar().week.astype(str)
-    merged_df['completion_date_with_out_buffer'] = pd.to_datetime(merged_df['completion_date_with_out_buffer'])
-    merged_df = merged_df.sort_values(by='completion_date_with_out_buffer').reset_index()
-    print(merged_df.columns)
     # print(merged_df)
 
     return merged_df
