@@ -137,6 +137,8 @@ def forcast_tool_output(df):
 
     # return_unit_capacity function returns capacity value.
     df["capacity_day"] = df.apply(lambda x: return_unit_capacity(x['unit'], x['machine']), axis = 1)
+    df['insertion_date'] = pd.to_datetime(df['insertion_date'])
+    df = df.sort_values(by='insertion_date').reset_index()
     df['total_actual_days'] = round(df['estimated_hours'] /df['capacity_day'])
     df['actual_start_date'] = ''
     df['completion_date_with_out_buffer'] = ''
@@ -383,6 +385,8 @@ def total_load_on_systems_output(total_load_on_systems_input):
     #print(merged_df)
     merged_df['completion_date_with_out_buffer_week'] = 'Week '+merged_df['completion_date_with_out_buffer'].dt.isocalendar().week.astype(str)
     merged_df['completion_date_with_buffer_week'] = 'Week '+merged_df['completion_date_with_out_buffer'].dt.isocalendar().week.astype(str)
+    merged_df['completion_date_with_out_buffer'] = pd.to_datetime(merged_df['completion_date_with_out_buffer'])
+    merged_df = merged_df.sort_values(by='completion_date_with_out_buffer').reset_index()
     # print(merged_df)
 
     return merged_df
