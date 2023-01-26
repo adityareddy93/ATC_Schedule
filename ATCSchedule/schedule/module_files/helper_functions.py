@@ -93,6 +93,198 @@ def cal_dates(df):
 
     return df
 
+def cal_end_hours(machine, hours, estimated_hours):
+    total_hours = 0
+    if machine == 'turning':
+        total_hours = hours+(estimated_hours/2)
+    if machine == 'milling':
+        total_hours = hours+(estimated_hours/8)+48
+    if machine == 'edm':
+        total_hours = hours+(estimated_hours//5)+96
+    if machine == 'wire_cut':
+        total_hours = hours+(estimated_hours//6)+144
+    return total_hours
+
+def cal_forcast_dates(df):
+    for i in range(len(df)):
+        if df.loc[i,'machine']=='wire_cut':
+            unit_and_machine_var =  df.loc[i,'unit'][0] + df.loc[i,'unit'][-1] + "_" + "wc"
+        else:
+            unit_and_machine_var =  df.loc[i,'unit'][0] + df.loc[i,'unit'][-1] + "_" + df.loc[i,'machine'][:3]
+
+        unit_and_machine_var = df_ref.loc[df_ref['Hours'] == 1,'date'].values[0]
+        if df.loc[i,'machine']=='turning':
+            if unit_and_machine_var < df.loc[i,'insertion_date']:
+                hours = df_ref.loc[df_ref['date'] == df.loc[i,'insertion_date'],'Hours']
+                end_hours = hours+(df.loc[i,'estimated_hours']/2)
+                end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
+                week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'insertion_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
+                df.at[i,'actual_start_date'] = df.loc[i,'insertion_date']
+                diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
+                if week_endCheck.shape[0] == 0:
+                    unit_and_machine_var = end_date.values[0]
+                    df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
+                else:
+                    end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
+                    unit_and_machine_var = end_date
+                    df.at[i,'completion_date_with_out_buffer'] = end_date
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
+            else:
+                hours = df_ref.loc[df_ref['date'] == unit_and_machine_var,'Hours']
+                end_hours = hours+(df.loc[i,'estimated_hours']/2)
+                end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
+                df.at[i,'actual_start_date'] = pd.Timestamp(unit_and_machine_var)
+                diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
+                week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'actual_start_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
+                if week_endCheck.shape[0] == 0:
+                    unit_and_machine_var = end_date.values[0]
+
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
+
+                    df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
+                else:
+                    end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
+                    unit_and_machine_var = end_date
+
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
+
+                    df.at[i,'completion_date_with_out_buffer'] = end_date
+        elif df.loc[i,'machine']=='milling':
+            if unit_and_machine_var < df.loc[i,'insertion_date']:
+                hours = df_ref.loc[df_ref['date'] == df.loc[i,'insertion_date'],'Hours']
+                end_hours = hours+(df.loc[i,'estimated_hours']/8)+48
+                end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
+                unit_and_machine_var = end_date.values[0]
+                df.at[i,'actual_start_date'] = df.loc[i,'insertion_date']+timedelta(hours=48)
+                diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
+                week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'insertion_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
+                if week_endCheck.shape[0] == 0:
+                    unit_and_machine_var = end_date.values[0]
+
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
+
+                    df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
+                else:
+                    end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
+                    unit_and_machine_var = end_date
+
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
+
+                    df.at[i,'completion_date_with_out_buffer'] = end_date
+            else:
+
+                hours = df_ref.loc[df_ref['date'] == unit_and_machine_var,'Hours']
+                end_hours = hours+(df.loc[i,'estimated_hours']/8)#+48
+                end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
+
+                df.at[i,'actual_start_date'] = pd.Timestamp(unit_and_machine_var)#+timedelta(hours=48)
+                diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
+
+                week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'actual_start_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
+
+                if week_endCheck.shape[0] == 0:
+                    unit_and_machine_var = end_date.values[0]
+
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
+
+                    df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
+                else:
+                    end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
+                    unit_and_machine_var = end_date
+
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
+
+                    df.at[i,'completion_date_with_out_buffer'] = end_date
+        elif df.loc[i,'machine']=='edm':
+            if unit_and_machine_var < df.loc[i,'insertion_date']:
+                hours = df_ref.loc[df_ref['date'] == df.loc[i,'insertion_date'],'Hours']
+                end_hours = hours+(df.loc[i,'estimated_hours']/5)+96
+                end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
+
+                df.at[i,'actual_start_date'] = df.loc[i,'insertion_date']+ timedelta(hours=96)
+                diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
+                week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'insertion_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
+                if week_endCheck.shape[0] == 0:
+                    unit_and_machine_var = end_date.values[0]
+
+
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
+
+                    df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
+                else:
+                    end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
+                    unit_and_machine_var = end_date
+
+
+
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
+
+                    df.at[i,'completion_date_with_out_buffer'] = end_date
+            else:
+                hours = df_ref.loc[df_ref['date'] == unit_and_machine_var,'Hours']
+                end_hours = hours+(df.loc[i,'estimated_hours']/5)#+96
+                end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
+                diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
+
+                df.at[i,'actual_start_date'] = pd.Timestamp(unit_and_machine_var)#+ timedelta(hours=96)
+                week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'actual_start_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
+                if week_endCheck.shape[0] == 0:
+                    unit_and_machine_var = end_date.values[0]
+
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
+
+                    df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
+                else:
+                    end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
+                    unit_and_machine_var = end_date
+
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
+
+                    df.at[i,'completion_date_with_out_buffer'] = end_date
+        elif df.loc[i,'machine']=='wire_cut':
+            if unit_and_machine_var < df.loc[i,'insertion_date']:
+                hours = df_ref.loc[df_ref['date'] == df.loc[i,'insertion_date'],'Hours']
+                end_hours = hours+(df.loc[i,'estimated_hours']/6)+144
+                end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
+                diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
+
+                df.at[i,'actual_start_date'] = df.loc[i,'insertion_date']+ timedelta(hours=144)
+                week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'insertion_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
+                if week_endCheck.shape[0] == 0:
+                    unit_and_machine_var = end_date.values[0]
+
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
+
+                    df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
+                else:
+                    end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
+                    unit_and_machine_var = end_date
+
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
+
+                    df.at[i,'completion_date_with_out_buffer'] = end_date
+            else:
+
+                hours = df_ref.loc[df_ref['date'] == unit_and_machine_var,'Hours']
+                end_hours = hours+(df.loc[i,'estimated_hours']/6)#+144
+
+                end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
+                diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
+
+                df.at[i,'actual_start_date'] = pd.Timestamp(unit_and_machine_var) #+ timedelta(hours=144)
+                week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'actual_start_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
+                if week_endCheck.shape[0] == 0:
+                    unit_and_machine_var = end_date.values[0]
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
+                    df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
+                else:
+                    end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
+                    unit_and_machine_var = end_date
+                    df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
+                    df.at[i,'completion_date_with_out_buffer'] = end_date
+    return df
+
 # Calculate forcast date for total load on systems.
 def forcast_tool_output(df):
     # if (!(df)) {
@@ -114,8 +306,8 @@ def forcast_tool_output(df):
 
     df['estimated_hours'] = df['estimated_hours'].fillna(0)
     df['buffer_hours'] = df['buffer_hours'].fillna(10)
-    df['estimated_hours'] = df['estimated_hours']*df['num_of_inserts']
-    df['buffer_hours'] = df['buffer_hours']*df['num_of_inserts']
+    # df['estimated_hours'] = df['estimated_hours']*df['num_of_inserts']
+    # df['buffer_hours'] = df['buffer_hours']*df['num_of_inserts']
 
     # Buffer hours wiil be in percentage converting percentage to values
     df['buffer_hours'] = df['estimated_hours'] + ((df['estimated_hours']*df['buffer_hours'])/100)
@@ -143,209 +335,17 @@ def forcast_tool_output(df):
     df['actual_start_date'] = ''
     df['completion_date_with_out_buffer'] = ''
     df['completion_date_with_buffer'] = ''
-    u1_tur=u1_mil=u1_edm=u1_wc=u2_tur=u2_mil=u2_edm=u2_wc=u3_tur=u3_mil=u3_edm=u3_wc=u4_tur=u4_mil=u4_edm=u4_wc = df_ref.loc[df_ref['Hours'] == 1,'date'].values[0]
+    # u1_tur=u1_mil=u1_edm=u1_wc=u2_tur=u2_mil=u2_edm=u2_wc=u3_tur=u3_mil=u3_edm=u3_wc=u4_tur=u4_mil=u4_edm=u4_wc = df_ref.loc[df_ref['Hours'] == 1,'date'].values[0]
+    # print("&&&&&&&&&&&&&&&&&&&&&&&&")
+    # print(u1_tur)
     remaining = 0
+
+    df_with_fd = cal_forcast_dates(df)
+    # print(df_with_fd)
     #df_ref.loc[df_ref['Hours'] == 1,'date'].values[0]
-    for i in range(len(df)):
-        if df.loc[i,'unit']=='unit 1':
-            if df.loc[i,'machine']=='turning':
-                if u1_tur < df.loc[i,'insertion_date']:
-                    hours = df_ref.loc[df_ref['date'] == df.loc[i,'insertion_date'],'Hours']
-                    end_hours = hours+(df.loc[i,'estimated_hours']/2)
-                    end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
-                    week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'insertion_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
-                    df.at[i,'actual_start_date'] = df.loc[i,'insertion_date']
-                    diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
-                    if week_endCheck.shape[0] == 0:
-                        u1_tur = end_date.values[0]
-                        df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
-                    else:
-                        end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
-                        u1_tur = end_date
-                        df.at[i,'completion_date_with_out_buffer'] = end_date
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
-                else:
-                    hours = df_ref.loc[df_ref['date'] == u1_tur,'Hours']
-                    end_hours = hours+(df.loc[i,'estimated_hours']/2)
-                    end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
-                    df.at[i,'actual_start_date'] = pd.Timestamp(u1_tur)
-                    diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
-                    week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'actual_start_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
-                    if week_endCheck.shape[0] == 0:
-                        u1_tur = end_date.values[0]
 
-
-
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
-
-                        df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
-                    else:
-                        end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
-                        u1_tur = end_date
-
-
-
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
-
-                        df.at[i,'completion_date_with_out_buffer'] = end_date
-            elif df.loc[i,'machine']=='milling':
-                if u1_mil < df.loc[i,'insertion_date']:
-                    hours = df_ref.loc[df_ref['date'] == df.loc[i,'insertion_date'],'Hours']
-                    end_hours = hours+(df.loc[i,'estimated_hours']/8)+48
-                    end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
-                    u1_mil = end_date.values[0]
-                    df.at[i,'actual_start_date'] = df.loc[i,'insertion_date']+timedelta(hours=48)
-                    diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
-                    week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'insertion_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
-                    if week_endCheck.shape[0] == 0:
-                        u1_mil = end_date.values[0]
-
-
-
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
-
-                        df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
-                    else:
-                        end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
-                        u1_mil = end_date
-
-
-
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
-
-                        df.at[i,'completion_date_with_out_buffer'] = end_date
-                else:
-
-                    hours = df_ref.loc[df_ref['date'] == u1_mil,'Hours']
-                    end_hours = hours+(df.loc[i,'estimated_hours']/8)#+48
-                    end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
-
-                    df.at[i,'actual_start_date'] = pd.Timestamp(u1_mil)#+timedelta(hours=48)
-                    diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
-
-                    week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'actual_start_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
-
-                    if week_endCheck.shape[0] == 0:
-                        u1_mil = end_date.values[0]
-
-
-
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
-
-                        df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
-                    else:
-                        end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
-                        u1_mil = end_date
-
-
-
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
-
-                        df.at[i,'completion_date_with_out_buffer'] = end_date
-            elif df.loc[i,'machine']=='edm':
-                if u1_edm < df.loc[i,'insertion_date']:
-                    hours = df_ref.loc[df_ref['date'] == df.loc[i,'insertion_date'],'Hours']
-                    end_hours = hours+(df.loc[i,'estimated_hours']/5)+96
-                    end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
-
-                    df.at[i,'actual_start_date'] = df.loc[i,'insertion_date']+ timedelta(hours=96)
-                    diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
-                    week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'insertion_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
-                    if week_endCheck.shape[0] == 0:
-                        u1_edm = end_date.values[0]
-
-
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
-
-                        df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
-                    else:
-                        end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
-                        u1_edm = end_date
-
-
-
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
-
-                        df.at[i,'completion_date_with_out_buffer'] = end_date
-                else:
-                    hours = df_ref.loc[df_ref['date'] == u1_edm,'Hours']
-                    end_hours = hours+(df.loc[i,'estimated_hours']/5)#+96
-                    end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
-                    diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
-
-                    df.at[i,'actual_start_date'] = pd.Timestamp(u1_edm)#+ timedelta(hours=96)
-                    week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'actual_start_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
-                    if week_endCheck.shape[0] == 0:
-                        u1_edm = end_date.values[0]
-
-
-
-
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
-
-                        df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
-                    else:
-                        end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
-                        u1_edm = end_date
-
-
-
-
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
-
-                        df.at[i,'completion_date_with_out_buffer'] = end_date
-            elif df.loc[i,'machine']=='wire_cut':
-                if u1_wc < df.loc[i,'insertion_date']:
-                    hours = df_ref.loc[df_ref['date'] == df.loc[i,'insertion_date'],'Hours']
-                    end_hours = hours+(df.loc[i,'estimated_hours']/6)+144
-                    end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
-                    diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
-
-                    df.at[i,'actual_start_date'] = df.loc[i,'insertion_date']+ timedelta(hours=144)
-                    week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'insertion_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
-                    if week_endCheck.shape[0] == 0:
-                        u1_wc = end_date.values[0]
-
-
-
-
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
-
-                        df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
-                    else:
-                        end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
-                        u1_wc = end_date
-
-
-
-
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
-
-                        df.at[i,'completion_date_with_out_buffer'] = end_date
-                else:
-
-                    hours = df_ref.loc[df_ref['date'] == u1_wc,'Hours']
-                    end_hours = hours+(df.loc[i,'estimated_hours']/6)#+144
-
-                    end_date = df_ref.loc[df_ref['Hours'] == round(end_hours.values[0]),'date']
-                    diff_hours = df.loc[i,'buffer_hours'] - df.loc[i,'estimated_hours']
-
-                    df.at[i,'actual_start_date'] = pd.Timestamp(u1_wc) #+ timedelta(hours=144)
-                    week_endCheck = df_ref[(df_ref['date'] >= df.loc[i,'actual_start_date']) & (df_ref['date'] <= pd.Timestamp(end_date.values[0])) & (df_ref['is_sunday'] == "True")]
-                    if week_endCheck.shape[0] == 0:
-                        u1_wc = end_date.values[0]
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date.values[0])+timedelta(hours=diff_hours)
-                        df.at[i,'completion_date_with_out_buffer'] = end_date.values[0]
-                    else:
-                        end_date = pd.Timestamp(end_date.values[0])+timedelta(hours=24)
-                        u1_wc = end_date
-                        df.at[i,'completion_date_with_buffer'] = pd.Timestamp(end_date)+timedelta(hours=diff_hours)
-                        df.at[i,'completion_date_with_out_buffer'] = end_date
-            else:pass
-
-    df['completion_date_with_out_buffer'] = pd.to_datetime(df['completion_date_with_out_buffer']).dt.strftime("%Y-%m-%d %H:%M:%S")
-    df['completion_date_with_buffer'] = pd.to_datetime(df['completion_date_with_buffer']).dt.strftime("%Y-%m-%d %H:%M:%S")
+    df_with_fd['completion_date_with_out_buffer'] = pd.to_datetime(df_with_fd['completion_date_with_out_buffer']).dt.strftime("%Y-%m-%d %H:%M:%S")
+    df_with_fd['completion_date_with_buffer'] = pd.to_datetime(df_with_fd['completion_date_with_buffer']).dt.strftime("%Y-%m-%d %H:%M:%S")
 
     return df
 
