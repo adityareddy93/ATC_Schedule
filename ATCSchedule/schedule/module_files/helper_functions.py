@@ -305,8 +305,8 @@ def forcast_tool_output(df):
     df['buffer_hours'] = df['estimated_hours'] + ((df['estimated_hours']*df['buffer_hours'])/100)
     order = ['turning','milling','edm','wire_cut']
     df['machine'] = pd.Categorical(df['machine'], order)
-
-    df = df.sort_values(by = ['insertion_date','unit','machine'])
+    # print(df)
+    # df = df.sort_values(by = ['insertion_date','unit','machine'])
     insertion_date = df.drop_duplicates(["unit", "tool_info", "machine"])
 
     df_dummy = df.drop_duplicates(["unit", "tool_info", "machine"]).reset_index()
@@ -328,12 +328,14 @@ def forcast_tool_output(df):
     # return_unit_capacity function returns capacity value.
     df["capacity_day"] = df.apply(lambda x: return_unit_capacity(x['unit'], x['machine']), axis = 1)
     df['insertion_date'] = pd.to_datetime(df['insertion_date'])
-    df = df.sort_values(by='insertion_date').reset_index()
+    # df = df.sort_values(by='insertion_date').reset_index(drop=True)
+
     df['total_actual_days'] = round(df['estimated_hours'] /df['capacity_day'])
 
     df['actual_start_date'] = ''
     df['completion_date_with_out_buffer'] = ''
     df['completion_date_with_buffer'] = ''
+
     u1_tur=u1_mil=u1_edm=u1_wc=u2_tur=u2_mil=u2_edm=u2_wc=u3_tur=u3_mil=u3_edm=u3_wc=u4_tur=u4_mil=u4_edm=u4_wc = df_ref.loc[df_ref['Hours'] == 1,'date'].values[0]
     # print("&&&&&&&&&&&&&&&&&&&&&&&&")
     # print(u1_tur)
@@ -368,7 +370,7 @@ def total_load_on_systems_output(total_load_on_systems_input):
         return pd.DataFrame()
 
     total_load_on_systems_output = forcast_tool_output(total_load_on_systems_input)
-    #print(total_load_on_systems_output)
+    # print(total_load_on_systems_output)
     # Cal dataframe with min of actual start date
     total_load_start_date = total_load_on_systems_output[
         ["unit", "tool_info", "actual_start_date"]].copy()
