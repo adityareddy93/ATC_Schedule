@@ -407,22 +407,7 @@ def usage_efficiency_report(total_load_input, daily_report_input, *args):
     if ((total_load_input.empty) or (daily_report_input.empty)):
         return pd.DataFrame()
 
-    daily_df = daily_report_output(total_load_input, daily_report_input, 'DAILY_REPORT')
-    if (daily_df.empty):
-        return pd.DataFrame()
-    #
-    daily_df_ = daily_df[daily_df["status"] == 'completed']
-
-    daily_df_ = daily_df_.groupby(['unit', 'tool_info'])['status'].count().reset_index()
-
-    daily_df_ = daily_df_[daily_df_['status'] == 4]
-
-    # print(daily_df_)
-    if (daily_df_.empty):
-        return pd.DataFrame()
-
-
-    result_df = pd.merge(daily_df_[["unit", "tool_info"]], daily_df, how='inner', on=["unit", "tool_info"])
+    result_df = daily_report_output(total_load_input, daily_report_input, 'DAILY_REPORT')
 
     if (result_df.empty):
         return pd.DataFrame()
@@ -585,9 +570,6 @@ def daily_report_output(total_load_input, daily_report, *args):
     # Merge to add estimated hours to daily report
     merged_df_ = pd.merge(total_load_on_systems_output, merged_df, how='inner', left_on=["unit", "tool_info", "machine"], right_on=["unit", "tool_info", "machine"])
 
-    # Merge values to get the completion dates
-
-    with_completion_dt = pd.merge(merged_df_, load_with_completion_dt, how='inner', left_on=["unit", "tool_info", "machine"], right_on=["unit", "tool_info", "machine"])
     # print(merged_df_)
     if (args):
         for str_report in args:
@@ -598,6 +580,18 @@ def daily_report_output(total_load_input, daily_report, *args):
 
     if (merged_df_.empty):
         return pd.DataFrame()
+
+    daily_df_ = merged_df_[merged_df_["status"] == 'completed']
+
+    daily_df_ = daily_df_.groupby(['unit', 'tool_info'])['status'].count().reset_index()
+
+    daily_df_ = daily_df_[daily_df_['status'] == 4]
+
+
+    result_df = pd.merge(merged_df_, daily_df_[["unit", "tool_info"]], on=['unit','tool_info'], how="outer", indicator=True).query('_merge=="left_only"')
+
+    # Merge values to get the completion dates
+    with_completion_dt = pd.merge(result_df, load_with_completion_dt, how='inner', left_on=["unit", "tool_info", "machine"], right_on=["unit", "tool_info", "machine"])
 
     with_completion_dt["balance_hours_as_on_today"] = with_completion_dt["estimated_hours"] - with_completion_dt["num_of_hours"]
     with_completion_dt = with_completion_dt.apply(balance_hour_validation, axis=1)
@@ -680,6 +674,8 @@ def add_progress_to_expected_hours(row):
 def balance_hour_validation(row):
     # Validation for balance_hours_as_on_today
     if row["balance_hours_as_on_today"] < 0:
+        row["balance_hours_as_on_today"] = 0
+    if ((row["balance_hours_as_on_today"] > 0) & (row["status"] == "completed")):
         row["balance_hours_as_on_today"] = 0
     return row
 
