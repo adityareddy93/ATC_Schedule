@@ -571,15 +571,6 @@ def daily_report_output(total_load_input, daily_report, *args):
     merged_df_ = pd.merge(total_load_on_systems_output, merged_df, how='inner', left_on=["unit", "tool_info", "machine"], right_on=["unit", "tool_info", "machine"])
 
     # print(merged_df_)
-    if (args):
-        for str_report in args:
-            if str_report == 'DAILY_REPORT':
-                return merged_df_
-            else:
-                break
-
-    if (merged_df_.empty):
-        return pd.DataFrame()
 
     daily_df_ = merged_df_[merged_df_["status"] == 'completed']
 
@@ -587,6 +578,16 @@ def daily_report_output(total_load_input, daily_report, *args):
 
     daily_df_ = daily_df_[daily_df_['status'] == 4]
 
+    if (args):
+        for str_report in args:
+            if str_report == 'DAILY_REPORT':
+                output_merge = pd.merge(merged_df_, daily_df_[["unit", "tool_info"]], on=['unit','tool_info'], how="inner")
+                return output_merge
+            else:
+                break
+
+    if (merged_df_.empty):
+        return pd.DataFrame()
 
     result_df = pd.merge(merged_df_, daily_df_[["unit", "tool_info"]], on=['unit','tool_info'], how="outer", indicator=True).query('_merge=="left_only"')
 
