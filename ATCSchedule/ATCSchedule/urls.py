@@ -18,15 +18,33 @@ from django.urls import path
 #from django.config.urls.static import static
 #from django.conf.settings import base,local
 
-from schedule.views import estimated_hours,print_df,base
+from schedule.views import estimated_hours, daily_machine_hours, accuracy, total_load_on_sys_output, daily_report_hours_output, accuracy_output, overall_effiency_output, usage_efficiency_output, base, logoutpage, registerPage, loginPage
 
 admin.site.site_header = "ATC Portal"
 admin.site.site_title = "ATC Admin Portal"
 admin.site.index_title = "Welcome to Amritha Tool Craft portal"
 
+
+
+
 urlpatterns = [
     path(r'admin/', admin.site.urls),
     path(r'', base,name = 'base'),
     path(r'estimated_hours/',estimated_hours,name='estimated hours'),
-    path(r'print/',print_df,name='Total Load On System Report')
+    path(r'daily_machine_hours/',daily_machine_hours,name='Daily Machine Hours'),
+    path(r'accuracy/',accuracy,name='Accuracy'),
+    path(r'total_load_on_systems/',total_load_on_sys_output,name='Total Load On System Report'),
+    path(r'quality_report/',accuracy_output,name='Quality Report'),
+    path(r'overall_efficiency_report/',overall_effiency_output,name='Overall Efficiency Report'),
+    path(r'usage_efficiency_report/',usage_efficiency_output,name='Usage Efficiency Report'),
+    path(r'daily_report/',daily_report_hours_output,name='Daily Report'),
+    path(r'login/',loginPage,name='Login'),
+    path(r'logout/',logoutpage,name='logout'),
+    path(r'register/',registerPage,name='Register'),
 ]
+
+
+handler400 = 'schedule.views.handler400'
+handler403 = 'schedule.views.handler403'
+handler404 = 'schedule.views.handler404'
+handler500 = 'schedule.views.handler500'

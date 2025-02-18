@@ -1,141 +1,144 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-<style>
-table, th, td {
-border: 2px solid #ddd;
-border-collapse: collapse;
-padding:5px;
-}
-</style>
-</head>
-<body>
-
-<table style="width:100%">
-  <tr>
-    <th colspan="1">Tool Information</th>
-    <th colspan="3">Turning</th>
-    <th colspan="3">Milling</th>
-    <th colspan="3">EDM</th>
-    <th colspan="3">Wire Cut</th>
-  </tr>
-  <tr>
-    <th></th>
-    <th>Planned</th>
-    <th>Actual</th>
-    <th>Completion Date</th>
-    <th>Planned</th>
-    <th>Actual</th>
-    <th>Completion Date</th>
-    <th>Planned</th>
-    <th>Actual</th>
-    <th>Completion Date</th>
-    <th>Planned</th>
-    <th>Actual</th>
-    <th>Completion Date</th>
-  </tr>
-
-</table>
-</body>
-</html> -->
-
-
 <style>
 
-input.b {
-  position: absolute;
-  right: 500px;
-  padding: 3px;
-  font-family: Arial, Helvetica, sans-serif;
-}
+  input.b {
+    position: absolute;
+    right: 500px;
+    padding: 3px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
 
-input.a {
-  position: absolute;
-  right: 350px;
-  padding: 3px;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-
-button.sub {
-  position: absolute;
-  right: 280px;
-  padding: 3px;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-#center {font-weight: bold;}
-
-#customers {
-  font-family: Arial, Helvetica, sans-serif;
-  border-collapse: collapse;
-  width: 90%;
+  input.a {
+    position: absolute;
+    right: 350px;
+    padding: 3px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
 
 
-}
+  button.sub {
+    position: absolute;
+    right: 280px;
+    padding: 3px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
 
-#customers td, #customers th {
-  border: 2px solid #ddd;
-  padding: 8px;
-  border-radius: 5px
+  #customers {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 95%;
 
-}
 
-#customers tr:nth-child(even){background-color: #f2f2f2;}
+  }
 
-#customers tr:hover {background-color: lightblue;}
+  #customers td, #customers th {
+    border: 2px solid #ddd;
+    padding: 8px;
+    border-radius: 5px
 
-#customers th {
-  padding-top: 12px;
-  padding-bottom: 12px;
-  text-align: left;
-  background-color: #417690;
-  color: white;
-  font-weight: bold;
-  font-size: 18px;
+  }
 
-}
-</style>
-<body>
-{% extends 'nav_bar.html' %}
-{% block mycontent %}
-<h2>Usage Efficiency Report</h2>
-<form method="POST">
-  {% csrf_token %}
-<center id="center">
-From:&nbsp;&nbsp;<input  type="date"  name="start" id="myDate" value="yyyy-mm-dd">&nbsp;&nbsp;&nbsp;&nbsp;
-To:&nbsp;&nbsp;<input  type="date"  name="end" id="myDate" value="yyyy-mm-dd">&nbsp;&nbsp;&nbsp;&nbsp;
-<button  onclick="myFunction()">search</button>
-</center>
+  #customers tr:nth-child(even){background-color: #f2f2f2;}
 
-<br><br>
+  #customers tr:hover {background-color: lightblue;}
 
-<center>
-<table id="customers">
+  #customers th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #417690;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: center;
 
-  <tr>
-    <th>Tool Info</th>
-    <th>Machine Completed Date (Ideal case)</th>
-    <th>Machine Completed Date (With buffer)</th>
-    <th>Date</th>
-  </tr>
-  {% for i in d %}
-  <tr>
-    <td>{{i.tool_info}}</td>
-    <td>{{i.completion_date_with_out_buffer}}</td>
-    <td>{{i.completion_date_with_buffer}}</td>
-    <td>{{i.insertion_date}}</td>
+  }
+
+  </style>
+  <body>
+  {% extends 'nav_bar.html' %}
+  {% block mycontent %}
+  <h2>Daily Report</h2>
+  <form method="POST">
+    {% csrf_token %}
+  <!-- <center id="center">
+  From:&nbsp;&nbsp;<input  type="date"  name="start" id="myDate" value="yyyy-mm-dd">&nbsp;&nbsp;&nbsp;&nbsp;
+  To:&nbsp;&nbsp;<input  type="date"  name="end" id="myDate" value="yyyy-mm-dd">&nbsp;&nbsp;&nbsp;&nbsp;
+  <button  onclick="myFunction()">search</button>
+  </center> -->
+  <br><br>
+  <center>
+
+  <table id="customers">
+    <tr>
+      <th colspan="1">Tool Information</th>
+      <th colspan="4">Turning</th>
+      <th colspan="4">Milling</th>
+      <th colspan="4">EDM</th>
+      <th colspan="4">Wire Cut</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>Work done Today</th>
+      <th>Balance hours as on today</th>
+      <th>Machine Start Date</th>
+      <th>Likely Completion Date</th>
+      <!-- <th>Expected balance hours as on today(Buffer time)</th> -->
+      <th>Work done Today</th>
+      <th>balance hours as on today</th>
+      <th>Machine Start Date</th>
+      <th>Likely Completion Date</th>
+      <!-- <th>Expected balance hours as on today</th>
+      <th>Expected balance hours as on today(Buffer time)</th> -->
+      <th>Work done Today</th>
+      <th>balance hours as on today</th>
+      <th>Machine Start Date</th>
+      <th>Likely Completion Date</th>
+      <!-- <th>Expected balance hours as on today</th>
+      <th>Expected balance hours as on today(Buffer time)</th> -->
+      <th>Work done Today</th>
+      <th>balance hours as on today</th>
+      <th>Machine Start Date</th>
+      <th>Likely Completion Date</th>
+      <!-- <th>Expected balance hours as on today</th>
+      <th>Expected balance hours as on today(Buffer time)</th> -->
+    </tr>
+    {% for i in d %}
+    <tr>
+      <td>{{i.tool_info_}}</td>
+      <td>{{i.max_date_grouped_daily_hours_turning}}</td>
+      <td>{{i.balance_hours_as_on_today_turning}}</td>
+      <td>{{i.actual_machine_start_date_turning}}</td>
+      <td>{{i.completion_date_with_out_buffer_turning}}</td>
+      <!-- <td>{{i.expected_hours_as_on_today_turning}}</td>
+      <td>{{i.expected_hours_as_on_today_with_buffer_turning}}</td> -->
+      <td>{{i.max_date_grouped_daily_hours_milling}}</td>
+      <td>{{i.balance_hours_as_on_today_milling}}</td>
+      <td>{{i.actual_machine_start_date_milling}}</td>
+      <td>{{i.completion_date_with_out_buffer_milling}}</td>
+      <!-- <td>{{i.expected_hours_as_on_today_milling}}</td>
+      <td>{{i.expected_hours_as_on_today_with_buffer_milling}}</td> -->
+      <td>{{i.max_date_grouped_daily_hours_edm}}</td>
+      <td>{{i.balance_hours_as_on_today_edm}}</td>
+      <td>{{i.actual_machine_start_date_edm}}</td>
+      <td>{{i.completion_date_with_out_buffer_edm}}</td>
+      <!-- <td>{{i.expected_hours_as_on_today_edm}}</td>
+      <td>{{i.expected_hours_as_on_today_with_buffer_edm}}</td> -->
+      <td>{{i.max_date_grouped_daily_hours_wire_cut}}</td>
+      <td>{{i.balance_hours_as_on_today_wire_cut}}</td>
+      <td>{{i.actual_machine_start_date_wire_cut}}</td>
+      <td>{{i.completion_date_with_out_buffer_wire_cut}}</td>
+      <!-- <td>{{i.expected_hours_as_on_today_wire_cut}}</td>
+      <td>{{i.expected_hours_as_on_today_with_buffer_wire_cut}}</td> -->
   </tr>
   {% endfor %}
-
-</table>
-</center>
-</form>
-</body>
-<script>
-function myFunction() {
-  var x = document.getElementById("myDate").value;
-  document.getElementById("demo").innerHTML = x;
-}
-</script>
-{% endblock %}
+  </table>
+  </center>
+  </form>
+  </body>
+  <!-- <script>
+  function myFunction() {
+    var x = document.getElementById("myDate").value;
+    document.getElementById("demo").innerHTML = x;
+  }
+  </script> -->
+  {% endblock %}

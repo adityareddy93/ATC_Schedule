@@ -78,14 +78,14 @@ div.text_field {
 <!-- <button class="button" onclick="loadfunc()"><a href="/print" id="printsys">Total Load On System Report</a></button> -->
 <br><br><br>
  <div class="absolute">
-<button class="button" onclick="document.location='/print'">Total Load On System Report</button><br><br>
-<button class="button">Usage Efficiency Report</button><br><br>
-<button class="button">Overall Efficiency Report</button><br><br>
-<button class="button">Quality Report</button><br><br>
-<button class="button">Daily Report</button><br><br>
+<button class="button" onclick="document.location='/total_load_on_systems'">Total Load On System Report</button><br><br>
+<button class="button" onclick="document.location='/usage_efficiency_report'">Usage Efficiency Report</button><br><br>
+<button class="button" onclick="document.location='/overall_efficiency_report'">Overall Efficiency Report</button><br><br>
+<button class="button" onclick="document.location='/quality_report'">Quality Report</button><br><br>
+<button class="button" onclick="document.location='/daily_report'">Daily Report</button><br><br>
  </div>
 
- <div class="text"> <h1>Amritha Tool Crafts</h1></div>
+ <div class="text"> <h1>Hello, {{request.user}}</h1></div>
  <div class="text_field"><h2>About: <h2>
    <h4>Amritha Tool Crafts was established in 1997 and has worked its way from a very humble beginning
    and has now positioned itself as one of the best mold making shops in India and matching with

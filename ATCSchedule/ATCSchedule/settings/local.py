@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = 'django-insecure-7r42sb2_w%=4)e%t*tbufbyu5jo!css#5u@=lx#@&ne=fho1d_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -51,6 +51,12 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'ATCSchedule.urls'
+
+SESSION_EXPIRE_SECONDS = 1200
+SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True      #<--- added
+SESSION_COOKIE_AGE = 1200                     #<-- added
 
 TEMPLATES = [
     {

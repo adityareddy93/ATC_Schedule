@@ -48,13 +48,13 @@ button.sub {
 
 }
 #customers td {
-  padding: 15px;
+  padding: 8px;
 	border: 2px solid #f2f2f2;
 	border-radius: 5px;
 }
 
 #customers th {
-  border: 2px solid #ddd;
+  border: 1px solid #ddd;
   padding: 8px;
   border-radius: 5px
 }
@@ -83,61 +83,72 @@ button.sub {
 	{% else %}
 <h2> &nbsp;&nbsp;&nbsp;Estimated Hours </h2>
 <center>
+  <form action = "" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type = "file" name="file">
+    <button type="submit" name="file">Upload</button>
+  </form>
+  </center>
+<center>
 
-  <form action = "" method="post">
+  <form action = "" method="post" enctype="multipart/form-data">
 		<table id="customers">
     {% csrf_token %}
 		<tr>
-	    <th>Department</th>
+	    <th>Unit</th>
 	    <th>Tool No</th>
 	    <th>Tool Name</th>
 	    <th>Insert</th>
 			<th>No Of Inserts</th>
 			<th>Machine</th>
 			<th>Estimated Hours</th>
-			<th>Buffer Hours</th>
+			<th>Buffer Hours(%)</th>
 			<th>Insertion date</th>
 	  </tr>
 		<tr>
-			<td>{{form.department}}</td>
+			<td>{{form.unit}}</td>
 			<td>{{form.tool_no}}</td>
 			<td>{{form.tool_name}}</td>
 			<td>{{form.insert}}</td>
 			<td>{{form.num_of_inserts}}</td>
-			<td>{{form.machines}}</td>
+			<td>{{form.machine}}</td>
 			<td>{{form.estimated_hours}}</td>
 			<td>{{form.buffer_hours}}</td>
 			<td>{{form.insertion_date}}</td>
 		</tr>
 		</table>
 <br>
-<button class="button" type="submit" value= "submit">Submit</button>
 
+<button class="button" type="submit" value= "submit">Submit</button>
 </form>
 </center>
+
+
+
+
 <br>
 <center>
 <table id="customers">
 
   <tr>
-    <th>Department</th>
+    <th>Unit</th>
     <th>Tool No</th>
     <th>Tool Name</th>
     <th>Insert</th>
 		<th>No Of Inserts</th>
 		<th>Machine</th>
 		<th>Estimated Hours</th>
-		<th>Buffer Hours</th>
+		<th>Buffer Hours(%)</th>
 		<th>Insertion date</th>
   </tr>
 	{% for i in d %}
 	<tr class='sub'>
-		<td class='sub'>{{i.department}}</td>
+		<td class='sub'>{{i.unit}}</td>
 		<td class='sub'>{{i.tool_no}}</td>
 		<td class='sub'>{{i.tool_name}}</td>
 		<td class='sub'>{{i.insert}}</td>
 		<td class='sub'>{{i.num_of_inserts}}</td>
-		<td class='sub'>{{i.machines}}</td>
+		<td class='sub'>{{i.machine}}</td>
 		<td class='sub'>{{i.estimated_hours}}</td>
 		<td class='sub'>{{i.buffer_hours}}</td>
 		<td class='sub'>{{i.insertion_date}}</td>

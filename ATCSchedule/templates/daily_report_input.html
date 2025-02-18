@@ -1,0 +1,209 @@
+<style>
+    .button {
+      display: block;
+      padding: 5px 4px;
+      font-size: 18px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      outline: none;
+      color: white;
+      background-color: #79aec8;
+      border: none;
+      border-radius: 15px;
+      width: 130px;
+      font-weight: bold;
+      position:relative;
+      left:1%
+    }
+    input.b {
+      position: absolute;
+      right: 500px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    input.a {
+      position: absolute;
+      right: 350px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+
+    button.sub {
+      position: absolute;
+      right: 280px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #center {font-weight: bold;}
+
+    #customers {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 98%;
+
+
+    }
+    #customers td {
+      padding: 15px;
+        border: 2px solid #f2f2f2;
+        border-radius: 5px;
+    }
+
+    #customers th {
+      border: 2px solid #ddd;
+      padding: 8px;
+      border-radius: 5px
+    }
+
+    #customers tr:nth-child(even){background-color: #ddd;}
+
+    #customers tr.sub:hover {background-color: olive;}
+    #customers td.sub:hover {background-color: lightseagreen;}
+
+    #customers th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #417690;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    </style>
+
+
+    {% extends 'nav_bar.html' %}
+    {% block mycontent %}
+        {% if submit %}
+        Form Submitted Successfully
+        {% else %}
+    <h2> &nbsp;&nbsp;&nbsp;Daily Report </h2>
+    <center>
+      <form action = "" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type = "file" name="file">
+        <button type="submit" name="file">Upload</button>
+      </form>
+    </center>>
+    <center>
+
+      <form action = "" method="post" enctype="multipart/form-data">
+            <table id="customers">
+        {% csrf_token %}
+          <tr>
+            <th>Unit</th>
+            <th>Tool No</th>
+            <th>Tool Name</th>
+            <th>Insert</th>
+            <th>Machine</th>
+            <th>Machine Name</th>
+            <th>Number of Hours</th>
+            <th>Status</th>
+            <th>Daily date</th>
+          </tr>
+            <tr>
+                <td>{{form.unit}}</td>
+                <td>{{form.tool_no}}</td>
+                <td>{{form.tool_name}}</td>
+                <td>{{form.insert}}</td>
+                <td>{{form.machine}}</td>
+                <td>{{form.machine_name}}</td>
+                <td>{{form.num_of_hours}}</td>
+                <td>{{form.status}}</td>
+                <td>{{form.daily_date}}</td>
+            </tr>
+            </table>
+    <br>
+    <button class="button" type="submit" value= "submit">Submit</button>
+
+    </form>
+    </center>
+    <br>
+    <center>
+    <table id="customers">
+
+      <tr>
+        <th>Unit</th>
+        <th>Tool No</th>
+        <th>Tool Name</th>
+        <th>Insert</th>
+        <th>Machine</th>
+        <th>Machine Name</th>
+        <th>Number of Hours</th>
+        <th>Status</th>
+        <th>Daily date</th>
+      </tr>
+        {% for i in d %}
+        <tr class='sub'>
+            <td class='sub'>{{i.unit}}</td>
+            <td class='sub'>{{i.tool_no}}</td>
+            <td class='sub'>{{i.tool_name}}</td>
+            <td class='sub'>{{i.insert}}</td>
+            <td class='sub'>{{i.machine}}</td>
+            <td class='sub'>{{i.machine_name}}</td>
+            <td class='sub'>{{i.num_of_hours}}</td>
+            <td class='sub'>{{i.status}}</td>
+            <td class='sub'>{{i.daily_date}}</td>
+        </tr>
+        {% endfor %}
+
+    </table>
+    </center>
+
+	<script>
+
+	var subjectObject = {
+  "unit 1": {
+    "turning": ["CTX 310 eco", "NLX2000Y/500"],
+    "milling": ["S 33","S 56","F3_1","F3_2","HSM 500","MILL S 500", "HSM 300","4KS"],
+    "edm": ["FO 350 SP","FO 35 PSL","FO 350 Gamma","FORM 200","Workmaster Robot"],
+    "wire_cut" : ["CUT 200 SP","CUT 300","CUT 20 P","CUT 30 P", "DRILL 20_1", "DRILL 20_2"]
+  },
+  "unit 2": {
+    "turning": ["SJE 10 LM", "JOBBER-XL", "LT 2 LM500"],
+    "milling": ["HEM 1200", "VF-2SS_1", "VF-2SS_2", "FV-85A", "4KS"],
+	"edm": ["F0 23 UP_1", "F0 23 UP_2"],
+  },
+  "unit 4": {
+    "turning": ["QTE-200 SG_1", "QTE-200 SG_2"],
+    "milling": ["F5_1", "F5_2", "VF-2-I_1", "VF-2-I_2", "ROBODRILL (ALPHA) D21MiA","(Details not available at Unit-4)","TUN-20YA"],
+	"edm": ["F0 23 UP","AG40L_1", "AG40L_2", "AG40L_3"],
+	"wire_cut": ["DRILL 11 EDM (wire drill)","SL400G","AL400G","RIVER 300 (wire drill)"]
+  },
+}
+window.onload = function() {
+  var subjectSel = document.getElementById("department");
+  var topicSel = document.getElementById("machine");
+  var chapterSel = document.getElementById("machine_id");
+  //for (var x in subjectObject) {
+    //subjectSel.options[subjectSel.options.length] = new Option(x, x);
+  //}
+  subjectSel.onchange = function() {
+    //empty Chapters- and Topics- dropdowns
+    chapterSel.length = 1;
+    topicSel.length = 1;
+    //display correct values
+    for (var y in subjectObject[this.value]) {
+      topicSel.options[topicSel.options.length] = new Option(y, y);
+    }
+  }
+  topicSel.onchange = function() {
+    //empty Chapters dropdown
+    chapterSel.length = 1;
+    //display correct values
+    var z = subjectObject[subjectSel.value][this.value];
+    for (var i = 0; i < z.length; i++) {
+      chapterSel.options[chapterSel.options.length] = new Option(z[i], z[i]);
+    }
+  }
+}
+
+
+</script>
+
+        {% endif %}
+    {% endblock %}

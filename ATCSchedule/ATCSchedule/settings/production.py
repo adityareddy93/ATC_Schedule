@@ -51,6 +51,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'ATCSchedule.urls'
 
+SESSION_EXPIRE_SECONDS = 1200
+SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True      #<--- added
+SESSION_COOKIE_AGE = 1200                     #<-- added
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

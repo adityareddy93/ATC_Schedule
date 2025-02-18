@@ -1,0 +1,104 @@
+<style>
+
+    input.b {
+      position: absolute;
+      right: 500px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    input.a {
+      position: absolute;
+      right: 350px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+
+    button.sub {
+      position: absolute;
+      right: 280px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #customers {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 90%;
+
+
+    }
+
+    #customers td, #customers th {
+      border: 2px solid #ddd;
+      padding: 8px;
+      border-radius: 5px
+
+    }
+
+    #customers tr:nth-child(even){background-color: #f2f2f2;}
+
+    #customers tr:hover {background-color: lightblue;}
+
+    #customers th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #417690;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+      text-align: center;
+
+    }
+
+    </style>
+    <body>
+    {% extends 'nav_bar.html' %}
+    {% block mycontent %}
+    <h2>Overall Efficiency Report</h2>
+    <form method="POST">
+      {% csrf_token %}
+
+    <br><br>
+
+    <center>
+
+    <table id="customers">
+      <tr>
+        <th colspan="1">Tool Information</th>
+        <th colspan="2">Turning</th>
+        <th colspan="2">Milling</th>
+        <th colspan="2">EDM</th>
+        <th colspan="2">Wire Cut</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th>Efficiency (%)</th>
+        <th>Quality (Rejects)</th>
+        <th>Efficiency (%)</th>
+        <th>Quality (Rejects)</th>
+        <th>Efficiency (%)</th>
+        <th>Quality (Rejects)</th>
+        <th>Efficiency (%)</th>
+        <th>Quality (Rejects)</th>
+      </tr>
+      {% for i in d %}
+      <tr>
+        <td>{{i.tool_info_}}</td>
+        <td>{{i.overall_efficiency_turning}}</td>
+        <td>{{i.num_of_rejects_turning}}</td>
+        <td>{{i.overall_efficiency_milling}}</td>
+        <td>{{i.num_of_rejects_milling}}</td>
+        <td>{{i.overall_efficiency_edm}}</td>
+        <td>{{i.num_of_rejects_edm}}</td>
+        <td>{{i.overall_efficiency_wire_cut}}</td>
+        <td>{{i.num_of_rejects_wire_cut}}</td>
+    </tr>
+    {% endfor %}
+    </table>
+    </center>
+    </form>
+    </body>
+    {% endblock %}

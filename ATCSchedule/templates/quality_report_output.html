@@ -1,0 +1,95 @@
+
+<style>
+
+    input.b {
+      position: absolute;
+      right: 500px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    input.a {
+      position: absolute;
+      right: 350px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+
+    button.sub {
+      position: absolute;
+      right: 280px;
+      padding: 3px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    #center {font-weight: bold;}
+
+    #customers {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 90%;
+
+
+    }
+
+    #customers td, #customers th {
+      border: 2px solid #ddd;
+      padding: 8px;
+      border-radius: 5px
+
+    }
+
+    #customers tr:nth-child(even){background-color: #f2f2f2;}
+
+    #customers tr:hover {background-color: lightblue;}
+
+    #customers th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #417690;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+
+    }
+    </style>
+    <body>
+    {% extends 'nav_bar.html' %}
+    {% block mycontent %}
+    <h2>Quality Report</h2>
+    <form method="POST">
+      {% csrf_token %}
+
+    <br><br>
+
+    <center>
+    <table id="customers">
+
+      <tr>
+        <th>Unit</th>
+        <th>Tool Info</th>
+        <th>No. of Rejects</th>
+        <th>Est. Cost</th>
+      </tr>
+      {% for i in d %}
+      <tr>
+        <td>{{i.unit}}</td>
+        <td>{{i.tool_info}}</td>
+        <td>{{i.num_of_rejects}}</td>
+        <td>{{i.estimated_cost}}</td>
+      </tr>
+      {% endfor %}
+
+    </table>
+    </center>
+    </form>
+    </body>
+    <script>
+    function myFunction() {
+      var x = document.getElementById("myDate").value;
+      document.getElementById("demo").innerHTML = x;
+    }
+    </script>
+    {% endblock %}
